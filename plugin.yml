@@ -1,0 +1,14 @@
+name: WLogin
+main: wickham.main.WLogin
+version: 1.0
+api-version: 1.14
+commands:
+   login:
+      description: 登录
+      usage: /login 你的密码
+   register:
+      description: 注册
+      usage: /register 你的密码 重复一遍你的密码
+   unlogin:
+      description: 退出登录
+      usage: /unlogin 或者 /unlogin playerName
