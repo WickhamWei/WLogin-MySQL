@@ -21,7 +21,7 @@ public final class Login implements CommandExecutor {
 					@Override
 					public void run() {
 						// TODO 自动生成的方法存根
-						if (WLoginSYS.isRegister(player)) {
+						if (WLoginSYS.isRegister(player.getName())) {
 							if (!WLoginSYS.isLogin(player)) {
 								if (WLoginSYS.chackPassword(player, args[0])) {
 									WLoginSYS.login(player);
@@ -43,7 +43,7 @@ public final class Login implements CommandExecutor {
 				return false;
 			}
 		}else {
-			sender.sendMessage("你必须是个玩家");
+			sender.sendMessage(WLogin.playerEntityOnlyMsg());
 			return true;
 		}
 	}

@@ -43,11 +43,6 @@ public abstract class WLoginSYS {
 	}
 	
 	public static boolean isRegister(String playerNameString) {
-		return isRegister(WLogin.main.getServer().getPlayer(playerNameString));
-	}
-
-	public static boolean isRegister(Player player) {// 玩家是否已注册
-		String playerNameString = player.getName();
 		Statement statement;
 		String playerNameFromDBString = null;
 		try {
@@ -114,16 +109,12 @@ public abstract class WLoginSYS {
 		return;
 	}
 
-	public static void login(String playerNameString) { // 使玩家登录
-		login(WLogin.main.getServer().getPlayer(playerNameString));
-	}
-
-	public static void unlogin(Player player) {
-		unlogin(player.getName());
-	}
-
-	public static void unlogin(String playerNameString) {// 使玩家退出登录
+	public static boolean unlogin(Player player) {// 使玩家退出登录
 		// TODO Auto-generated method stub
+		if(player==null) {
+			return false;
+		}
+		String playerNameString=player.getName();
 		Statement statement;
 		PlayerPlayingTime playerplayingtime = new PlayerPlayingTime();
 		try {
@@ -154,48 +145,39 @@ public abstract class WLoginSYS {
 			WLogin.main.getLogger().warning("更新玩家 " + playerNameString + " 的已游玩时间失败");
 		}
 		loginListHashMap.remove(playerNameString);
-		return;
-
+		return true;
 	}
 
-	public void changePassword(Player player, String newPasswordString) {// 修改密码
+	public static void changePassword(Player playerSender,String targePlayerNameString, String newPasswordString) {// 修改密码
 		// TODO Auto-generated method stub
-		String playerNameString = player.getName();
 		PlayerPassword playerPassword = new PlayerPassword();
 		Statement statement;
 		try {
 			statement = WLogin.mySQL.getConnection().createStatement();
 			ResultSet result = statement
-					.executeQuery("SELECT * FROM playerpassword WHERE playername = '" + playerNameString + "';");
+					.executeQuery("SELECT * FROM playerpassword WHERE playername = '" + targePlayerNameString + "';");
 			while (result.next()) {
 				playerPassword.setPlayerNameString(result.getString(1));
 				playerPassword.setPlayerPasswordString(result.getString(2));
 			}
 			statement.executeUpdate("INSERT INTO playeroldpassword(playername,time,oldpassword,ip)VALUES('"
-					+ playerNameString + "', now() ,'" + playerPassword.getPlayerPasswordString() + "',inet_aton('"
-					+ getPlayerIPAddress(player) + "'))");
+					+ targePlayerNameString + "', now() ,'" + playerPassword.getPlayerPasswordString() + "',inet_aton('"
+					+ getPlayerIPAddress(playerSender) + "'))");
 			statement.executeUpdate("UPDATE playerpassword SET playerpassword = '" + newPasswordString
-					+ "' WHERE playername = '" + playerNameString + "'");
+					+ "' WHERE playername = '" + targePlayerNameString + "'");
 			result.close();
 			statement.close();
 		} catch (SQLException e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			WLogin.main.getLogger().warning("更新玩家 " + playerNameString + " 的密码失败");
+			WLogin.main.getLogger().warning("更新玩家 " + targePlayerNameString + " 的密码失败");
 		}
-
 		return;
 	}
 
 	public static Timestamp getNowTimestamp() { // 获得现在的时间戳
-		Date date = new Date();
-		Long dateLong = date.getTime();
-		Timestamp timestamp = new Timestamp(dateLong);
+		Timestamp timestamp=new Timestamp(new Date().getTime());
 		return timestamp;
-	}
-
-	public static String getPlayerIPAddress(String playerNameString) {
-		return getPlayerIPAddress(WLogin.main.getServer().getPlayer(playerNameString));
 	}
 
 	public static String getPlayerIPAddress(Player player) {// 获得玩家的IP地址

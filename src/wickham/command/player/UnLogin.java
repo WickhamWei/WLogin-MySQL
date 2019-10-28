@@ -22,7 +22,7 @@ public class UnLogin implements CommandExecutor {
 					@Override
 					public void run() {
 						// TODO 自动生成的方法存根
-						if (WLoginSYS.isRegister(player)) {
+						if (WLoginSYS.isRegister(player.getName())) {
 							if (WLoginSYS.isLogin(player)) {
 								WLoginSYS.unlogin(player);
 							} else {
@@ -36,7 +36,7 @@ public class UnLogin implements CommandExecutor {
 				bukkitRunnable.runTaskAsynchronously(WLogin.main);
 				return true;
 			} else {
-				sender.sendMessage("你必须是个玩家");
+				sender.sendMessage(WLogin.playerEntityOnlyMsg());
 			}
 		} else if (args.length == 1) {
 			if (sender instanceof Player) {
@@ -50,7 +50,9 @@ public class UnLogin implements CommandExecutor {
 							// TODO 自动生成的方法存根
 							if (WLoginSYS.isRegister(targePlayerNameString)) {
 								if (WLoginSYS.isLogin(targePlayerNameString)) {
-									WLoginSYS.unlogin(targePlayerNameString);
+									if(!WLoginSYS.unlogin(WLogin.main.getServer().getPlayer(targePlayerNameString))) {
+										player.sendMessage(WLogin.unknownPlayerEntityMsg());
+									}
 								} else {
 									player.sendMessage(targePlayerNameString + " 还没登录");
 								}
@@ -71,7 +73,9 @@ public class UnLogin implements CommandExecutor {
 						// TODO 自动生成的方法存根
 						if (WLoginSYS.isRegister(targePlayerNameString)) {
 							if (WLoginSYS.isLogin(targePlayerNameString)) {
-								WLoginSYS.unlogin(targePlayerNameString);
+								if(!WLoginSYS.unlogin(WLogin.main.getServer().getPlayer(targePlayerNameString))) {
+									sender.sendMessage(WLogin.unknownPlayerEntityMsg());
+								}
 							} else {
 								sender.sendMessage(targePlayerNameString + " 还没登录");
 							}

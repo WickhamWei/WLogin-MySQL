@@ -2,6 +2,7 @@ package wickham.main;
 
 import java.sql.SQLException;
 
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import wickham.command.player.Login;
@@ -70,5 +71,17 @@ public class WLogin extends JavaPlugin {
 
 	public boolean isMySQLEnable() {// 服务器是否启动mysql
 		return enableMySQL;
+	}
+	
+	public static String noPermissionMsg() {
+		return ChatColor.RED+"你没有权限做此事";
+	}
+	
+	public static String unknownPlayerEntityMsg() {
+		return ChatColor.RED+"玩家不存在";
+	}
+	
+	public static String playerEntityOnlyMsg() {
+		return ChatColor.RED+"只有玩家实体才可执行此命令";
 	}
 }
