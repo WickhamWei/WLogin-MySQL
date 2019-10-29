@@ -1,5 +1,8 @@
 name: WLogin
 main: wickham.main.WLogin
+load: STARTUP
+authors: [Wickham, HomeRich]
+website: https://github.com/WickhamWei/WLogin
 version: 1.0
 api-version: 1.14
 commands:
@@ -11,4 +14,7 @@ commands:
       usage: /register 你的密码 重复一遍你的密码
    unlogin:
       description: 退出登录
-      usage: /unlogin 或者 /unlogin playerName
+      usage: /unlogin playerName
+   changepassword:
+      description: 修改密码
+      usage: /changepassword 你的密码 重复一遍你的密码 或者 /changepassword 玩家名字 密码 重复一遍密码

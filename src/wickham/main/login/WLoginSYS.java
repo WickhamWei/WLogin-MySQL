@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -21,7 +22,7 @@ public abstract class WLoginSYS {
 	public static boolean isLogin(String playerNameString) { // 判断玩家是否登录
 		return loginListHashMap.containsKey(playerNameString);
 	}
-	
+
 	public static boolean isLogin(Player player) {
 		return isLogin(player.getName());
 	}
@@ -41,7 +42,7 @@ public abstract class WLoginSYS {
 		}
 		return true;
 	}
-	
+
 	public static boolean isRegister(String playerNameString) {
 		Statement statement;
 		String playerNameFromDBString = null;
@@ -92,7 +93,7 @@ public abstract class WLoginSYS {
 	}
 
 	public static void login(Player player) {
-		String playerNameString=player.getName();
+		String playerNameString = player.getName();
 		// TODO Auto-generated method stub
 		try {
 			Statement statement = WLogin.mySQL.getConnection().createStatement();
@@ -109,12 +110,35 @@ public abstract class WLoginSYS {
 		return;
 	}
 
-	public static boolean unlogin(Player player) {// 使玩家退出登录
+	public static void loginFail(Player player) {
+		String playerNameString = player.getName();
 		// TODO Auto-generated method stub
-		if(player==null) {
+		try {
+			Statement statement = WLogin.mySQL.getConnection().createStatement();
+			String sql = "INSERT INTO playerlogindata(playername,logintime,loginable,ip) VALUES ('" + playerNameString
+					+ "', now() ," + false + ",inet_aton('" + getPlayerIPAddress(player) + "'))";
+			statement.executeUpdate(sql);
+			statement.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			WLogin.main.getLogger().warning("玩家 " + playerNameString + " 的登陆数据记录失败");
+		}
+		return;
+	}
+	
+	public static void unLoginAllPlayer() {
+		for (String playerNameString : loginListHashMap.keySet()) {
+			unLogin(WLogin.main.getServer().getPlayer(playerNameString));
+		}
+	}
+
+	public static boolean unLogin(Player player) {// 使玩家退出登录
+		// TODO Auto-generated method stub
+		if (player == null) {
 			return false;
 		}
-		String playerNameString=player.getName();
+		String playerNameString = player.getName();
 		Statement statement;
 		PlayerPlayingTime playerplayingtime = new PlayerPlayingTime();
 		try {
@@ -125,7 +149,7 @@ public abstract class WLoginSYS {
 				playerplayingtime.setPlayerNameString(result.getString(1));
 				playerplayingtime.setMin(result.getInt(2));
 			}
-			int playingtime = getTimeDifferenceMinutes(loginListHashMap.get(playerNameString), getNowTimestamp());
+			int playingtime = getTimeDifferenceMinutes(getNowTimestamp(), loginListHashMap.get(playerNameString));
 			if (playerplayingtime.getPlayerNameString() == null
 					|| playerplayingtime.getPlayerNameString().length() == 0) {
 				statement.executeUpdate("INSERT INTO playerplayingtime(playername,min)VALUES('" + playerNameString
@@ -148,8 +172,16 @@ public abstract class WLoginSYS {
 		return true;
 	}
 
-	public static void changePassword(Player playerSender,String targePlayerNameString, String newPasswordString) {// 修改密码
+	public static boolean changePassword(CommandSender sender, String targePlayerNameString, String newPasswordString) {// 修改密码
 		// TODO Auto-generated method stub
+		String senderNameString;
+		Player player = null;
+		if (sender instanceof Player) {
+			player = (Player) sender;
+			senderNameString = player.getName();
+		} else {
+			senderNameString = "ADMIN";
+		}
 		PlayerPassword playerPassword = new PlayerPassword();
 		Statement statement;
 		try {
@@ -160,10 +192,18 @@ public abstract class WLoginSYS {
 				playerPassword.setPlayerNameString(result.getString(1));
 				playerPassword.setPlayerPasswordString(result.getString(2));
 			}
-			statement.executeUpdate("INSERT INTO playeroldpassword(playername,time,oldpassword,ip)VALUES('"
-					+ targePlayerNameString + "', now() ,'" + playerPassword.getPlayerPasswordString() + "',inet_aton('"
-					+ getPlayerIPAddress(playerSender) + "'))");
-			statement.executeUpdate("UPDATE playerpassword SET playerpassword = '" + newPasswordString
+			if (senderNameString.equals("ADMIN")) {
+				statement.executeUpdate("INSERT INTO playeroldpassword(sendername,playername,time,oldpassword)VALUES('"
+						+ senderNameString + "','" + targePlayerNameString + "', now() ,'"
+						+ playerPassword.getPlayerPasswordString() + "')");
+			} else {
+				statement.executeUpdate(
+						"INSERT INTO playeroldpassword(sendername,playername,time,oldpassword,ip)VALUES('"
+								+ senderNameString + "','" + targePlayerNameString + "', now() ,'"
+								+ playerPassword.getPlayerPasswordString() + "',inet_aton('"
+								+ getPlayerIPAddress(player) + "'))");
+			}
+			statement.executeUpdate("UPDATE playerpassword SET password = '" + newPasswordString
 					+ "' WHERE playername = '" + targePlayerNameString + "'");
 			result.close();
 			statement.close();
@@ -171,12 +211,13 @@ public abstract class WLoginSYS {
 			// TODO: handle exception
 			e.printStackTrace();
 			WLogin.main.getLogger().warning("更新玩家 " + targePlayerNameString + " 的密码失败");
+			return false;
 		}
-		return;
+		return true;
 	}
 
 	public static Timestamp getNowTimestamp() { // 获得现在的时间戳
-		Timestamp timestamp=new Timestamp(new Date().getTime());
+		Timestamp timestamp = new Timestamp(new Date().getTime());
 		return timestamp;
 	}
 
@@ -184,9 +225,9 @@ public abstract class WLoginSYS {
 		return player.getAddress().getAddress().getHostAddress();
 	}
 
-	public static int getTimeDifferenceMinutes(Timestamp formatTime1, Timestamp formatTime2) {// 获得时间戳的分钟差
-		long t1 = formatTime1.getTime();
-		long t2 = formatTime2.getTime();
+	public static int getTimeDifferenceMinutes(Timestamp nowTimestamp, Timestamp oldTimestamp) {// 获得时间戳的分钟差
+		long t1 = nowTimestamp.getTime();
+		long t2 = oldTimestamp.getTime();
 		int hours = (int) ((t1 - t2) / (1000 * 60 * 60));
 		int minutes = (int) (((t1 - t2) / 1000 - hours * (60 * 60)) / 60 + hours * 60);
 		return minutes;
@@ -240,8 +281,8 @@ public abstract class WLoginSYS {
 				try {
 					statement = WLogin.mySQL.getConnection().createStatement();
 					String sql = "CREATE TABLE IF NOT EXISTS `playeroldpassword`("
-							+ "`playername` VARCHAR(40) NOT NULL," + "`time` TIMESTAMP NOT NULL,"
-							+ "`oldpassword` VARCHAR(40) NOT NULL," + "`ip` bigint(20) NOT NULL,"
+							+ "`sendername` VARCHAR(40) NOT NULL," + "`playername` VARCHAR(40) NOT NULL,"
+							+ "`time` TIMESTAMP NOT NULL," + "`oldpassword` VARCHAR(40) NOT NULL," + "`ip` bigint(20),"
 							+ "FOREIGN KEY (playername) REFERENCES playerpassword(playername)"
 							+ ")ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 					statement.executeUpdate(sql);

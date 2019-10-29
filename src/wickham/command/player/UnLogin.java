@@ -14,34 +14,10 @@ public class UnLogin implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		// TODO 自动生成的方法存根
-		if (args.length == 0) {
+		if (args.length == 1) {
 			if (sender instanceof Player) {
 				Player player = (Player) sender;
-				BukkitRunnable bukkitRunnable = new BukkitRunnable() {
-
-					@Override
-					public void run() {
-						// TODO 自动生成的方法存根
-						if (WLoginSYS.isRegister(player.getName())) {
-							if (WLoginSYS.isLogin(player)) {
-								WLoginSYS.unlogin(player);
-							} else {
-								player.sendMessage("你还没登录");
-							}
-						} else {
-							player.sendMessage("你还未注册");
-						}
-					}
-				};
-				bukkitRunnable.runTaskAsynchronously(WLogin.main);
-				return true;
-			} else {
-				sender.sendMessage(WLogin.playerEntityOnlyMsg());
-			}
-		} else if (args.length == 1) {
-			if (sender instanceof Player) {
-				Player player = (Player) sender;
-				if (player.isOp() || args[0].equals(player.getName())) {
+				if (player.isOp()) {
 					String targePlayerNameString = args[0];
 					BukkitRunnable bukkitRunnable = new BukkitRunnable() {
 
@@ -50,7 +26,7 @@ public class UnLogin implements CommandExecutor {
 							// TODO 自动生成的方法存根
 							if (WLoginSYS.isRegister(targePlayerNameString)) {
 								if (WLoginSYS.isLogin(targePlayerNameString)) {
-									if(!WLoginSYS.unlogin(WLogin.main.getServer().getPlayer(targePlayerNameString))) {
+									if (!WLoginSYS.unLogin(WLogin.main.getServer().getPlayer(targePlayerNameString))) {
 										player.sendMessage(WLogin.unknownPlayerEntityMsg());
 									}
 								} else {
@@ -63,6 +39,8 @@ public class UnLogin implements CommandExecutor {
 					};
 					bukkitRunnable.runTaskAsynchronously(WLogin.main);
 					return true;
+				} else {
+					player.sendMessage(WLogin.noPermissionMsg());
 				}
 			} else {
 				String targePlayerNameString = args[0];
@@ -73,7 +51,7 @@ public class UnLogin implements CommandExecutor {
 						// TODO 自动生成的方法存根
 						if (WLoginSYS.isRegister(targePlayerNameString)) {
 							if (WLoginSYS.isLogin(targePlayerNameString)) {
-								if(!WLoginSYS.unlogin(WLogin.main.getServer().getPlayer(targePlayerNameString))) {
+								if (!WLoginSYS.unLogin(WLogin.main.getServer().getPlayer(targePlayerNameString))) {
 									sender.sendMessage(WLogin.unknownPlayerEntityMsg());
 								}
 							} else {

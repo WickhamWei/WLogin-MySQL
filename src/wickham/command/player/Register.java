@@ -25,6 +25,7 @@ public class Register implements CommandExecutor {
 						if (!WLoginSYS.isRegister(player.getName())) {
 							WLoginSYS.register(player, args[0]);
 							WLoginSYS.login(player);
+							player.sendMessage("注册成功，已经自动登录");
 						} else {
 							player.sendMessage("你已经注册了");
 						}

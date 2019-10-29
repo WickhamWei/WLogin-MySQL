@@ -3,6 +3,7 @@ package wickham.command.player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -23,7 +24,11 @@ public class ChangePassword implements CommandExecutor{
 						@Override
 						public void run() {
 							// TODO 自动生成的方法存根
-							WLoginSYS.changePassword(player, player.getName(), args[0]);
+							if (WLoginSYS.changePassword(player, player.getName(), args[0])) {
+								player.sendMessage("修改密码成功");
+							}else {
+								player.sendMessage(WLogin.serverCommandErrorMsg());
+							}
 						}
 					};
 					bukkitRunnable.runTaskAsynchronously(WLogin.main);
@@ -45,7 +50,11 @@ public class ChangePassword implements CommandExecutor{
 							@Override
 							public void run() {
 								// TODO 自动生成的方法存根
-								WLoginSYS.changePassword(player, player.getName(), args[1]);
+								if (WLoginSYS.changePassword(player, player.getName(), args[1])) {
+									player.sendMessage("修改密码成功");
+								}else {
+									player.sendMessage(WLogin.serverCommandErrorMsg());
+								}
 							}
 						};
 						bukkitRunnable.runTaskAsynchronously(WLogin.main);
@@ -62,7 +71,13 @@ public class ChangePassword implements CommandExecutor{
 									@Override
 									public void run() {
 										// TODO 自动生成的方法存根
-										WLoginSYS.changePassword(player, args[0], args[1]);
+										if (WLoginSYS.changePassword(player, args[0], args[1])) {
+											player.sendMessage("修改 "+args[0]+" 的密码成功");
+										}else {
+											player.sendMessage(WLogin.serverCommandErrorMsg());
+										}
+										
+										
 									}
 								};
 								bukkitRunnable.runTaskAsynchronously(WLogin.main);
@@ -79,9 +94,33 @@ public class ChangePassword implements CommandExecutor{
 						return false;
 					}
 				}
+			}else if (sender instanceof ConsoleCommandSender) {
+				if(WLoginSYS.isRegister(args[0])) {
+					if(args[1].equals(args[2])) {
+						BukkitRunnable bukkitRunnable=new BukkitRunnable() {
+							
+							@Override
+							public void run() {
+								// TODO 自动生成的方法存根
+								if (WLoginSYS.changePassword(sender, args[0], args[1])) {
+									sender.sendMessage("修改 "+args[0]+" 的密码成功");
+								}else {
+									sender.sendMessage(WLogin.serverCommandErrorMsg());
+								}
+							}
+						};
+						bukkitRunnable.runTaskAsynchronously(WLogin.main);
+					}else {
+						sender.sendMessage("两次密码不一样");
+						return false;
+					}
+				}else {
+					sender.sendMessage(WLogin.unknownPlayerEntityMsg());
+					return false;
+				}
 			}else {
 				sender.sendMessage(WLogin.playerEntityOnlyMsg());
-				return true;
+				return false;
 			}
 		}
 		return true;

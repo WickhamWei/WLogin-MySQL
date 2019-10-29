@@ -5,9 +5,11 @@ import java.sql.SQLException;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import wickham.command.player.ChangePassword;
 import wickham.command.player.Login;
 import wickham.command.player.Register;
 import wickham.command.player.UnLogin;
+import wickham.listener.PlayerQuitGameListener;
 import wickham.main.login.WLoginSYS;
 
 public class WLogin extends JavaPlugin {
@@ -23,11 +25,7 @@ public class WLogin extends JavaPlugin {
 			mySQL = new MySQL();
 			try {// 启动mysql
 				mySQL.openConnection();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				getLogger().warning("连接数据库失败");
-			} catch (SQLException e) {
+			} catch (ClassNotFoundException | SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				getLogger().warning("连接数据库失败");
@@ -45,10 +43,12 @@ public class WLogin extends JavaPlugin {
 			}
 		}
 		loadCommand();
+		PreparingListener();
 	}
 
 	@Override
 	public void onDisable() {
+		WLoginSYS.unLoginAllPlayer();
 		if (enableMySQL) {
 			try {
 				if (mySQL.isConnection()) {
@@ -67,6 +67,11 @@ public class WLogin extends JavaPlugin {
 		main.getCommand("login").setExecutor(new Login());
 		main.getCommand("register").setExecutor(new Register());
 		main.getCommand("unlogin").setExecutor(new UnLogin());
+		main.getCommand("changepassword").setExecutor(new ChangePassword());
+	}
+	
+	private void PreparingListener() {// 载入监听器
+		getServer().getPluginManager().registerEvents(new PlayerQuitGameListener(), this);
 	}
 
 	public boolean isMySQLEnable() {// 服务器是否启动mysql
@@ -83,5 +88,9 @@ public class WLogin extends JavaPlugin {
 	
 	public static String playerEntityOnlyMsg() {
 		return ChatColor.RED+"只有玩家实体才可执行此命令";
+	}
+	
+	public static String serverCommandErrorMsg() {
+		return ChatColor.RED+"服务器在处理命令时出错，请联系管理员";
 	}
 }

@@ -27,6 +27,7 @@ public final class Login implements CommandExecutor {
 									WLoginSYS.login(player);
 									player.sendMessage("登录成功");
 								} else {
+									WLoginSYS.loginFail(player);
 									player.sendMessage("密码错误");
 								}
 							}else {
