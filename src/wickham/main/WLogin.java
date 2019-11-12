@@ -3,13 +3,16 @@ package wickham.main;
 import java.sql.SQLException;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import wickham.command.player.ChangePassword;
 import wickham.command.player.Login;
 import wickham.command.player.Register;
 import wickham.command.player.UnLogin;
+import wickham.listener.PlayerJoinListener;
 import wickham.listener.PlayerQuitGameListener;
+import wickham.listener.PlayerUnLoginListener;
 import wickham.main.login.WLoginSYS;
 
 public class WLogin extends JavaPlugin {
@@ -72,6 +75,8 @@ public class WLogin extends JavaPlugin {
 	
 	private void PreparingListener() {// 载入监听器
 		getServer().getPluginManager().registerEvents(new PlayerQuitGameListener(), this);
+		getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+		getServer().getPluginManager().registerEvents(new PlayerUnLoginListener(), this);
 	}
 
 	public boolean isMySQLEnable() {// 服务器是否启动mysql
@@ -92,5 +97,9 @@ public class WLogin extends JavaPlugin {
 	
 	public static String serverCommandErrorMsg() {
 		return ChatColor.RED+"服务器在处理命令时出错，请联系管理员";
+	}
+	
+	public static void sendMsg(Player player,String msgString) {
+		player.sendTitle("", msgString, 5, 100, 5);
 	}
 }

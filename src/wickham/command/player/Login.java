@@ -1,5 +1,7 @@
 package wickham.command.player;
 
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,8 +18,8 @@ public final class Login implements CommandExecutor {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			if (args.length == 1) {
-				BukkitRunnable bukkitRunnable=new BukkitRunnable() {
-					
+				BukkitRunnable bukkitRunnable = new BukkitRunnable() {
+
 					@Override
 					public void run() {
 						// TODO 自动生成的方法存根
@@ -25,25 +27,26 @@ public final class Login implements CommandExecutor {
 							if (!WLoginSYS.isLogin(player)) {
 								if (WLoginSYS.chackPassword(player, args[0])) {
 									WLoginSYS.login(player);
-									player.sendMessage("登录成功");
+									WLogin.sendMsg(player, ChatColor.GREEN + "登录成功");
+									player.setGameMode(GameMode.SURVIVAL);
 								} else {
 									WLoginSYS.loginFail(player);
-									player.sendMessage("密码错误");
+									WLogin.sendMsg(player, ChatColor.RED + "密码错误");
 								}
-							}else {
-								player.sendMessage("你已经登录了");
+							} else {
+								player.sendMessage(ChatColor.YELLOW + "你已经登录了");
 							}
-						}else {
-							player.sendMessage("你还没注册");
+						} else {
+							player.sendMessage(ChatColor.RED + "你还没注册");
 						}
 					}
 				};
 				bukkitRunnable.runTaskAsynchronously(WLogin.main);
 				return true;
-			}else{
+			} else {
 				return false;
 			}
-		}else {
+		} else {
 			sender.sendMessage(WLogin.playerEntityOnlyMsg());
 			return true;
 		}
