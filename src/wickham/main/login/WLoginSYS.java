@@ -27,20 +27,31 @@ public abstract class WLoginSYS {
 		return isLogin(player.getName());
 	}
 
-	public static boolean register(Player player, String passwordString) {// 玩家注册
-		String playerNameString = player.getName();
-		Statement statement;
-		try {
-			statement = WLogin.mySQL.getConnection().createStatement();
-			statement.executeUpdate("INSERT INTO playerpassword(playername,password,ip) VALUES ('" + playerNameString
-					+ "','" + passwordString + "',inet_aton('" + getPlayerIPAddress(player) + "'))");
-			statement.close();
-		} catch (SQLException e) {
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-			return false;
-		}
-		return true;
+	public static void register(Player player, String passwordString) {// 玩家注册
+		BukkitRunnable bukkitRunnable = new BukkitRunnable() {
+
+			@Override
+			public void run() {
+				// TODO 自动生成的方法存根
+				String playerNameString = player.getName();
+				Statement statement;
+				try {
+					statement = WLogin.mySQL.getConnection().createStatement();
+					statement.executeUpdate(
+							"INSERT INTO playerpassword(playername,password,ip) VALUES ('" + playerNameString + "','"
+									+ passwordString + "',inet_aton('" + getPlayerIPAddress(player) + "'))");
+					statement.close();
+				} catch (SQLException e) {
+					// TODO 自动生成的 catch 块
+					e.printStackTrace();
+					WLogin.main.getLogger().warning("玩家 " + playerNameString + " 的注册数据记录失败");
+					player.sendMessage(WLogin.serverCommandErrorMsg());
+					return;
+				}
+				return;
+			}
+		};
+		bukkitRunnable.runTaskAsynchronously(WLogin.main);
 	}
 
 	public static boolean isRegister(String playerNameString) {
@@ -93,83 +104,173 @@ public abstract class WLoginSYS {
 	}
 
 	public static void login(Player player) {
-		String playerNameString = player.getName();
-		// TODO Auto-generated method stub
-		try {
-			Statement statement = WLogin.mySQL.getConnection().createStatement();
-			String sql = "INSERT INTO playerlogindata(playername,logintime,loginable,ip) VALUES ('" + playerNameString
-					+ "', now() ," + true + ",inet_aton('" + getPlayerIPAddress(player) + "'))";
-			statement.executeUpdate(sql);
-			statement.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			WLogin.main.getLogger().warning("玩家 " + playerNameString + " 的登陆数据记录失败");
-		}
-		loginListHashMap.put(playerNameString, getNowTimestamp());
-		return;
+		BukkitRunnable bukkitRunnable = new BukkitRunnable() {
+
+			@Override
+			public void run() {
+				// TODO 自动生成的方法存根
+				String playerNameString = player.getName();
+				// TODO Auto-generated method stub
+				boolean done = true;
+				try {
+					Statement statement = WLogin.mySQL.getConnection().createStatement();
+					String sql = "INSERT INTO playerlogindata(playername,logintime,loginable,ip) VALUES ('"
+							+ playerNameString + "', now() ," + true + ",inet_aton('" + getPlayerIPAddress(player)
+							+ "'))";
+					statement.executeUpdate(sql);
+					statement.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					WLogin.main.getLogger().warning("玩家 " + playerNameString + " 的登陆数据记录失败");
+					player.sendMessage(WLogin.serverCommandErrorMsg());
+					done = false;
+					return;
+				}
+				if (done) {
+					loginListHashMap.put(playerNameString, getNowTimestamp());
+				}
+				return;
+			}
+		};
+		bukkitRunnable.runTaskAsynchronously(WLogin.main);
 	}
 
 	public static void loginFail(Player player) {
-		String playerNameString = player.getName();
-		// TODO Auto-generated method stub
-		try {
-			Statement statement = WLogin.mySQL.getConnection().createStatement();
-			String sql = "INSERT INTO playerlogindata(playername,logintime,loginable,ip) VALUES ('" + playerNameString
-					+ "', now() ," + false + ",inet_aton('" + getPlayerIPAddress(player) + "'))";
-			statement.executeUpdate(sql);
-			statement.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			WLogin.main.getLogger().warning("玩家 " + playerNameString + " 的登陆数据记录失败");
-		}
-		return;
+		BukkitRunnable bukkitRunnable = new BukkitRunnable() {
+
+			@Override
+			public void run() {
+				// TODO 自动生成的方法存根
+				String playerNameString = player.getName();
+				// TODO Auto-generated method stub
+				try {
+					Statement statement = WLogin.mySQL.getConnection().createStatement();
+					String sql = "INSERT INTO playerlogindata(playername,logintime,loginable,ip) VALUES ('"
+							+ playerNameString + "', now() ," + false + ",inet_aton('" + getPlayerIPAddress(player)
+							+ "'))";
+					statement.executeUpdate(sql);
+					statement.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					WLogin.main.getLogger().warning("玩家 " + playerNameString + " 的登陆数据记录失败");
+				}
+				return;
+			}
+		};
+		bukkitRunnable.runTaskAsynchronously(WLogin.main);
 	}
-	
+
 	public static void unLoginAllPlayer() {
 		for (String playerNameString : loginListHashMap.keySet()) {
 			unLogin(WLogin.main.getServer().getPlayer(playerNameString));
 		}
 	}
+	
+	public static void unLogin(Player player) {// 使玩家退出登录
+		BukkitRunnable bukkitRunnable = new BukkitRunnable() {
 
-	public static boolean unLogin(Player player) {// 使玩家退出登录
-		// TODO Auto-generated method stub
-		if (player == null) {
-			return false;
-		}
-		String playerNameString = player.getName();
-		Statement statement;
-		PlayerPlayingTime playerplayingtime = new PlayerPlayingTime();
-		try {
-			statement = WLogin.mySQL.getConnection().createStatement();
-			ResultSet result = statement
-					.executeQuery("SELECT * FROM playerplayingtime WHERE playername = '" + playerNameString + "';");
-			while (result.next()) {
-				playerplayingtime.setPlayerNameString(result.getString(1));
-				playerplayingtime.setMin(result.getInt(2));
+			@Override
+			public void run() {
+				// TODO 自动生成的方法存根
+				// TODO Auto-generated method stub
+				boolean done = true;
+				if (player == null) {
+					return;
+				}
+				String playerNameString = player.getName();
+				Statement statement;
+				PlayerPlayingTime playerplayingtime = new PlayerPlayingTime();
+				try {
+					statement = WLogin.mySQL.getConnection().createStatement();
+					ResultSet result = statement.executeQuery(
+							"SELECT * FROM playerplayingtime WHERE playername = '" + playerNameString + "';");
+					while (result.next()) {
+						playerplayingtime.setPlayerNameString(result.getString(1));
+						playerplayingtime.setMin(result.getInt(2));
+					}
+					int playingtime = getTimeDifferenceMinutes(getNowTimestamp(),
+							loginListHashMap.get(playerNameString));
+					if (playerplayingtime.getPlayerNameString() == null
+							|| playerplayingtime.getPlayerNameString().length() == 0) {
+						statement.executeUpdate("INSERT INTO playerplayingtime(playername,min)VALUES('"
+								+ playerNameString + "'," + playingtime + ")");
+						result.close();
+						statement.close();
+					} else {
+						playingtime = playingtime + playerplayingtime.getMin();
+						statement.executeUpdate("UPDATE playerplayingtime SET min = " + playingtime
+								+ " WHERE playername = '" + playerNameString + "'");
+						result.close();
+						statement.close();
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					WLogin.main.getLogger().warning("更新玩家 " + playerNameString + " 的已游玩时间失败");
+					done = false;
+				}
+				if (done) {
+					loginListHashMap.remove(playerNameString);
+				}
+				return;
 			}
-			int playingtime = getTimeDifferenceMinutes(getNowTimestamp(), loginListHashMap.get(playerNameString));
-			if (playerplayingtime.getPlayerNameString() == null
-					|| playerplayingtime.getPlayerNameString().length() == 0) {
-				statement.executeUpdate("INSERT INTO playerplayingtime(playername,min)VALUES('" + playerNameString
-						+ "'," + playingtime + ")");
-				result.close();
-				statement.close();
-			} else {
-				playingtime = playingtime + playerplayingtime.getMin();
-				statement.executeUpdate("UPDATE playerplayingtime SET min = " + playingtime + " WHERE playername = '"
-						+ playerNameString + "'");
-				result.close();
-				statement.close();
+		};
+		bukkitRunnable.runTaskAsynchronously(WLogin.main);
+	}
+
+	public static void unLogin(CommandSender sender,Player player) {// 使玩家退出登录
+		BukkitRunnable bukkitRunnable = new BukkitRunnable() {
+
+			@Override
+			public void run() {
+				// TODO 自动生成的方法存根
+				// TODO Auto-generated method stub
+				boolean done = true;
+				if (player == null) {
+					sender.sendMessage(WLogin.unknownPlayerEntityMsg());
+					return;
+				}
+				String playerNameString = player.getName();
+				Statement statement;
+				PlayerPlayingTime playerplayingtime = new PlayerPlayingTime();
+				try {
+					statement = WLogin.mySQL.getConnection().createStatement();
+					ResultSet result = statement.executeQuery(
+							"SELECT * FROM playerplayingtime WHERE playername = '" + playerNameString + "';");
+					while (result.next()) {
+						playerplayingtime.setPlayerNameString(result.getString(1));
+						playerplayingtime.setMin(result.getInt(2));
+					}
+					int playingtime = getTimeDifferenceMinutes(getNowTimestamp(),
+							loginListHashMap.get(playerNameString));
+					if (playerplayingtime.getPlayerNameString() == null
+							|| playerplayingtime.getPlayerNameString().length() == 0) {
+						statement.executeUpdate("INSERT INTO playerplayingtime(playername,min)VALUES('"
+								+ playerNameString + "'," + playingtime + ")");
+						result.close();
+						statement.close();
+					} else {
+						playingtime = playingtime + playerplayingtime.getMin();
+						statement.executeUpdate("UPDATE playerplayingtime SET min = " + playingtime
+								+ " WHERE playername = '" + playerNameString + "'");
+						result.close();
+						statement.close();
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					WLogin.main.getLogger().warning("更新玩家 " + playerNameString + " 的已游玩时间失败");
+					done = false;
+				}
+				if (done) {
+					loginListHashMap.remove(playerNameString);
+				}
+				return;
 			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			WLogin.main.getLogger().warning("更新玩家 " + playerNameString + " 的已游玩时间失败");
-		}
-		loginListHashMap.remove(playerNameString);
-		return true;
+		};
+		bukkitRunnable.runTaskAsynchronously(WLogin.main);
 	}
 
 	public static boolean changePassword(CommandSender sender, String targePlayerNameString, String newPasswordString) {// 修改密码

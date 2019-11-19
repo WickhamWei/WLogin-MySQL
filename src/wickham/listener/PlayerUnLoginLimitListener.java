@@ -17,14 +17,14 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import wickham.main.WLogin;
 import wickham.main.login.WLoginSYS;
 
-public class PlayerUnLoginListener implements Listener{
+public class PlayerUnLoginLimitListener implements Listener{
 	
 	public void noRegister(Player player) {// 未注册的信息
-		WLogin.sendMsg(player, ChatColor.RED + "你还没注册，输入/register 密码 重复密码 来注册");
+		WLogin.sendMsg(player, ChatColor.RED + "你还没注册，输入/register <密码> <重复密码> 来注册");
 	}
 
 	public void noLogin(Player player) {// 未登录的信息
-		WLogin.sendMsg(player, ChatColor.RED + "你还没登陆，输入/login 密码 来登陆");
+		WLogin.sendMsg(player, ChatColor.RED + "你还没登陆，输入/login <密码> 来登陆");
 	}
 	
 	@EventHandler

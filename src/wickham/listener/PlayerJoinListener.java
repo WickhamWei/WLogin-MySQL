@@ -11,7 +11,8 @@ public class PlayerJoinListener implements Listener{
 	@EventHandler
 	public void listen(PlayerJoinEvent event) {// 玩家加入
 		Player player = event.getPlayer();
-		player.setGameMode(GameMode.SURVIVAL);
+		event.setJoinMessage("");
+		player.setGameMode(GameMode.SPECTATOR);
 		return;
 	}
 

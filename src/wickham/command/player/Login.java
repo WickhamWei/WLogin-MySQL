@@ -1,15 +1,16 @@
 package wickham.command.player;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import wickham.main.WLogin;
 import wickham.main.login.WLoginSYS;
+import wickham.event.WPlayerLoginEvent;
 
 public final class Login implements CommandExecutor {
 
@@ -18,30 +19,27 @@ public final class Login implements CommandExecutor {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			if (args.length == 1) {
-				BukkitRunnable bukkitRunnable = new BukkitRunnable() {
 
-					@Override
-					public void run() {
-						// TODO 自动生成的方法存根
-						if (WLoginSYS.isRegister(player.getName())) {
-							if (!WLoginSYS.isLogin(player)) {
-								if (WLoginSYS.chackPassword(player, args[0])) {
-									WLoginSYS.login(player);
-									WLogin.sendMsg(player, ChatColor.GREEN + "登录成功");
-									player.setGameMode(GameMode.SURVIVAL);
-								} else {
-									WLoginSYS.loginFail(player);
-									WLogin.sendMsg(player, ChatColor.RED + "密码错误");
-								}
-							} else {
-								player.sendMessage(ChatColor.YELLOW + "你已经登录了");
+				if (WLoginSYS.isRegister(player.getName())) {
+					if (!WLoginSYS.isLogin(player)) {
+						if (WLoginSYS.chackPassword(player, args[0])) {
+							WPlayerLoginEvent wPlayerLoginEvent = new WPlayerLoginEvent(player);
+							Bukkit.getPluginManager().callEvent(wPlayerLoginEvent);
+							if (!wPlayerLoginEvent.isCancelled()) {
+								WLoginSYS.login(player);
+								WLogin.sendMsg(player, ChatColor.GREEN + "登录成功");
+								player.setGameMode(GameMode.SURVIVAL);
 							}
 						} else {
-							player.sendMessage(ChatColor.RED + "你还没注册");
+							WLoginSYS.loginFail(player);
+							WLogin.sendMsg(player, ChatColor.RED + "密码错误");
 						}
+					} else {
+						player.sendMessage(ChatColor.YELLOW + "你已经登录了");
 					}
-				};
-				bukkitRunnable.runTaskAsynchronously(WLogin.main);
+				} else {
+					player.sendMessage(ChatColor.RED + "你还没注册");
+				}
 				return true;
 			} else {
 				return false;

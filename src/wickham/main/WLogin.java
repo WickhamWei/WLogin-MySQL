@@ -11,8 +11,9 @@ import wickham.command.player.Login;
 import wickham.command.player.Register;
 import wickham.command.player.UnLogin;
 import wickham.listener.PlayerJoinListener;
+import wickham.listener.PlayerLoginListener;
 import wickham.listener.PlayerQuitGameListener;
-import wickham.listener.PlayerUnLoginListener;
+import wickham.listener.PlayerUnLoginLimitListener;
 import wickham.main.login.WLoginSYS;
 
 public class WLogin extends JavaPlugin {
@@ -76,7 +77,8 @@ public class WLogin extends JavaPlugin {
 	private void PreparingListener() {// 载入监听器
 		getServer().getPluginManager().registerEvents(new PlayerQuitGameListener(), this);
 		getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
-		getServer().getPluginManager().registerEvents(new PlayerUnLoginListener(), this);
+		getServer().getPluginManager().registerEvents(new PlayerUnLoginLimitListener(), this);
+		getServer().getPluginManager().registerEvents(new PlayerLoginListener(), this);
 	}
 
 	public boolean isMySQLEnable() {// 服务器是否启动mysql
