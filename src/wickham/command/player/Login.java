@@ -12,7 +12,7 @@ import wickham.main.WLogin;
 import wickham.main.login.WLoginSYS;
 import wickham.event.WPlayerLoginEvent;
 
-public final class Login implements CommandExecutor {
+public class Login implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

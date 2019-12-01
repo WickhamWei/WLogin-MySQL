@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import wickham.command.player.ChangePassword;
 import wickham.command.player.Login;
+import wickham.command.player.LoginData;
 import wickham.command.player.Register;
 import wickham.command.player.UnLogin;
 import wickham.listener.PlayerJoinListener;
@@ -72,6 +73,7 @@ public class WLogin extends JavaPlugin {
 		main.getCommand("register").setExecutor(new Register());
 		main.getCommand("unlogin").setExecutor(new UnLogin());
 		main.getCommand("changepassword").setExecutor(new ChangePassword());
+		main.getCommand("logindata").setExecutor(new LoginData());
 	}
 	
 	private void PreparingListener() {// 载入监听器

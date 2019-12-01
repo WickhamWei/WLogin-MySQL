@@ -5,6 +5,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import wickham.main.login.WLoginSYS;
+
 
 public class PlayerJoinListener implements Listener{
 	
@@ -13,7 +15,13 @@ public class PlayerJoinListener implements Listener{
 		Player player = event.getPlayer();
 		event.setJoinMessage("");
 		player.setGameMode(GameMode.SPECTATOR);
-		return;
+		if (WLoginSYS.isLogin(event.getPlayer().getName())) {
+			return;
+		} else if (!WLoginSYS.isRegister(event.getPlayer().getName())) {
+			PlayerUnLoginLimitListener.noRegisterMsg(event.getPlayer());
+		} else {
+			PlayerUnLoginLimitListener.noLoginMsg(event.getPlayer());
+		}
 	}
 
 }

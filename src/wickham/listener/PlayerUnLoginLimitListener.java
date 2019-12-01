@@ -19,12 +19,12 @@ import wickham.main.login.WLoginSYS;
 
 public class PlayerUnLoginLimitListener implements Listener{
 	
-	public void noRegister(Player player) {// 未注册的信息
-		WLogin.sendMsg(player, ChatColor.RED + "你还没注册，输入/register <密码> <重复密码> 来注册");
+	public static void noRegisterMsg(Player player) {// 未注册的信息
+		WLogin.sendMsg(player, ChatColor.RED + "你还没注册， 输入/register <密码> <重复密码> 来注册");
 	}
 
-	public void noLogin(Player player) {// 未登录的信息
-		WLogin.sendMsg(player, ChatColor.RED + "你还没登陆，输入/login <密码> 来登陆");
+	public static void noLoginMsg(Player player) {// 未登录的信息
+		WLogin.sendMsg(player, ChatColor.RED + "你还没登陆， 输入/login <密码> 来登陆");
 	}
 	
 	@EventHandler
@@ -32,10 +32,10 @@ public class PlayerUnLoginLimitListener implements Listener{
 		if (WLoginSYS.isLogin(event.getPlayer().getName())) {
 			return;
 		} else if (!WLoginSYS.isRegister(event.getPlayer().getName())) {
-			noRegister(event.getPlayer());
+			noRegisterMsg(event.getPlayer());
 			event.setCancelled(true);
 		} else {
-			noLogin(event.getPlayer());
+			noLoginMsg(event.getPlayer());
 			event.setCancelled(true);
 		}
 	}
@@ -45,10 +45,10 @@ public class PlayerUnLoginLimitListener implements Listener{
 		if (WLoginSYS.isLogin(event.getPlayer().getName())) {
 			return;
 		} else if (!WLoginSYS.isRegister(event.getPlayer().getName())) {
-			noRegister(event.getPlayer());
+			noRegisterMsg(event.getPlayer());
 			event.setCancelled(true);
 		} else {
-			noLogin(event.getPlayer());
+			noLoginMsg(event.getPlayer());
 			event.setCancelled(true);
 		}
 	}
@@ -58,10 +58,10 @@ public class PlayerUnLoginLimitListener implements Listener{
 		if (WLoginSYS.isLogin(event.getPlayer().getName())) {
 			return;
 		} else if (!WLoginSYS.isRegister(event.getPlayer().getName())) {
-			noRegister(event.getPlayer());
+			noRegisterMsg(event.getPlayer());
 			event.setCancelled(true);
 		} else {
-			noLogin(event.getPlayer());
+			noLoginMsg(event.getPlayer());
 			event.setCancelled(true);
 		}
 	}
@@ -71,10 +71,10 @@ public class PlayerUnLoginLimitListener implements Listener{
 		if (WLoginSYS.isLogin(event.getPlayer().getName())) {
 			return;
 		} else if (!WLoginSYS.isRegister(event.getPlayer().getName())) {
-			noRegister(event.getPlayer());
+			noRegisterMsg(event.getPlayer());
 			event.setSpawnLocation(false);
 		} else {
-			noLogin(event.getPlayer());
+			noLoginMsg(event.getPlayer());
 			event.setSpawnLocation(false);
 		}
 	}
@@ -84,10 +84,10 @@ public class PlayerUnLoginLimitListener implements Listener{
 		if (WLoginSYS.isLogin(event.getPlayer().getName())) {
 			return;
 		} else if (!WLoginSYS.isRegister(event.getPlayer().getName())) {
-			noRegister(event.getPlayer());
+			noRegisterMsg(event.getPlayer());
 			event.setCancelled(true);
 		} else {
-			noLogin(event.getPlayer());
+			noLoginMsg(event.getPlayer());
 			event.setCancelled(true);
 		}
 	}
@@ -97,10 +97,10 @@ public class PlayerUnLoginLimitListener implements Listener{
 		if (WLoginSYS.isLogin(event.getPlayer().getName())) {
 			return;
 		} else if (!WLoginSYS.isRegister(event.getPlayer().getName())) {
-			noRegister(event.getPlayer());
+			noRegisterMsg(event.getPlayer());
 			event.setCancelled(true);
 		} else {
-			noLogin(event.getPlayer());
+			noLoginMsg(event.getPlayer());
 			event.setCancelled(true);
 		}
 	}
@@ -110,10 +110,10 @@ public class PlayerUnLoginLimitListener implements Listener{
 		if (WLoginSYS.isLogin(event.getPlayer().getName())) {
 			return;
 		} else if (!WLoginSYS.isRegister(event.getPlayer().getName())) {
-			noRegister(event.getPlayer());
+			noRegisterMsg(event.getPlayer());
 			event.setCancelled(true);
 		} else {
-			noLogin(event.getPlayer());
+			noLoginMsg(event.getPlayer());
 			event.setCancelled(true);
 		}
 	}
@@ -123,10 +123,10 @@ public class PlayerUnLoginLimitListener implements Listener{
 		if (WLoginSYS.isLogin(event.getPlayer().getName())) {
 			return;
 		} else if (!WLoginSYS.isRegister(event.getPlayer().getName())) {
-			noRegister(event.getPlayer());
+			noRegisterMsg(event.getPlayer());
 			event.setCancelled(true);
 		} else {
-			noLogin(event.getPlayer());
+			noLoginMsg(event.getPlayer());
 			event.setCancelled(true);
 		}
 	}
@@ -136,10 +136,10 @@ public class PlayerUnLoginLimitListener implements Listener{
 		if (WLoginSYS.isLogin(event.getPlayer().getName())) {
 			return;
 		} else if (!WLoginSYS.isRegister(event.getPlayer().getName())) {
-			noRegister((Player) event.getPlayer());
+			noRegisterMsg((Player) event.getPlayer());
 			event.setCancelled(true);
 		} else {
-			noLogin((Player) event.getPlayer());
+			noLoginMsg((Player) event.getPlayer());
 			event.setCancelled(true);
 		}
 	}

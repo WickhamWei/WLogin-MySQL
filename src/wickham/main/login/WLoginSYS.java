@@ -6,12 +6,15 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import wickham.main.WLogin;
+import wickham.main.mysql.tables.PlayerLoginData;
 import wickham.main.mysql.tables.PlayerPassword;
 import wickham.main.mysql.tables.PlayerPlayingTime;
 
@@ -74,6 +77,63 @@ public abstract class WLoginSYS {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 			return false;
+		}
+	}
+
+	public static void chackLoginData(Player senderPlayer, String targePlayerNameString, int page) {
+		Statement statement;
+		LinkedHashSet<PlayerLoginData> allDatas = new LinkedHashSet<PlayerLoginData>();
+		try {
+			statement = WLogin.mySQL.getConnection().createStatement();
+			ResultSet result = statement
+					.executeQuery("SELECT logintime,loginable,inet_ntoa(ip) FROM playerlogindata WHERE playername = '"
+							+ targePlayerNameString + "';");
+			while (result.next()) {
+				PlayerLoginData playerLoginData = new PlayerLoginData();
+				playerLoginData.setLoginTime(result.getTimestamp(1));
+				playerLoginData.setLoginable(result.getBoolean(2));
+				playerLoginData.setIpString(result.getString(3));
+				allDatas.add(playerLoginData);
+			}
+			if (allDatas.size() == 0) {
+				result.close();
+				statement.close();
+				senderPlayer.sendMessage(WLogin.unknownPlayerEntityMsg());
+				return;
+			}
+			if (page > (int) Math.ceil((float) allDatas.size() / 5)) {
+				page = (int) Math.ceil((float) allDatas.size() / 5);
+			}
+			senderPlayer.sendMessage(ChatColor.YELLOW + "---玩家 " + ChatColor.GREEN + targePlayerNameString
+					+ ChatColor.YELLOW + " 登录数据 - 第 " + ChatColor.GREEN + page + ChatColor.YELLOW + " 页 - 总共 "
+					+ ChatColor.GREEN + (int) Math.ceil((float) allDatas.size() / 5) + ChatColor.YELLOW + " 页---");
+			int targeDataMin = page * 5 - 4;
+			int targeDataMax = page * 5;
+			int tempNumber = 1;
+			for (PlayerLoginData data : allDatas) {
+				if (tempNumber >= targeDataMin && tempNumber <= targeDataMax) {
+					senderPlayer.sendMessage(
+							ChatColor.YELLOW + "-第 " + ChatColor.GREEN + tempNumber + ChatColor.YELLOW + " 条数据-");
+					senderPlayer.sendMessage(ChatColor.YELLOW + "尝试登录的时间 " + ChatColor.GREEN
+							+ data.getLoginTime().toString() + ChatColor.YELLOW + " 是否登录成功 " + ChatColor.GREEN
+							+ booleanToString(data.isLoginable()));
+					senderPlayer.sendMessage(ChatColor.YELLOW + " 尝试登录的IP地址 " + ChatColor.GREEN + data.getIpString());
+				}
+				tempNumber++;
+			}
+			result.close();
+			statement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			// TODO: handle exception
+		}
+	}
+
+	public static String booleanToString(Boolean targeBoolean) {
+		if (targeBoolean) {
+			return ChatColor.GREEN + "是";
+		} else {
+			return ChatColor.RED + "否";
 		}
 	}
 
@@ -167,60 +227,50 @@ public abstract class WLoginSYS {
 			unLogin(WLogin.main.getServer().getPlayer(playerNameString));
 		}
 	}
-	
-	public static void unLogin(Player player) {// 使玩家退出登录
-		BukkitRunnable bukkitRunnable = new BukkitRunnable() {
 
-			@Override
-			public void run() {
-				// TODO 自动生成的方法存根
-				// TODO Auto-generated method stub
-				boolean done = true;
-				if (player == null) {
-					return;
-				}
-				String playerNameString = player.getName();
-				Statement statement;
-				PlayerPlayingTime playerplayingtime = new PlayerPlayingTime();
-				try {
-					statement = WLogin.mySQL.getConnection().createStatement();
-					ResultSet result = statement.executeQuery(
-							"SELECT * FROM playerplayingtime WHERE playername = '" + playerNameString + "';");
-					while (result.next()) {
-						playerplayingtime.setPlayerNameString(result.getString(1));
-						playerplayingtime.setMin(result.getInt(2));
-					}
-					int playingtime = getTimeDifferenceMinutes(getNowTimestamp(),
-							loginListHashMap.get(playerNameString));
-					if (playerplayingtime.getPlayerNameString() == null
-							|| playerplayingtime.getPlayerNameString().length() == 0) {
-						statement.executeUpdate("INSERT INTO playerplayingtime(playername,min)VALUES('"
-								+ playerNameString + "'," + playingtime + ")");
-						result.close();
-						statement.close();
-					} else {
-						playingtime = playingtime + playerplayingtime.getMin();
-						statement.executeUpdate("UPDATE playerplayingtime SET min = " + playingtime
-								+ " WHERE playername = '" + playerNameString + "'");
-						result.close();
-						statement.close();
-					}
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					WLogin.main.getLogger().warning("更新玩家 " + playerNameString + " 的已游玩时间失败");
-					done = false;
-				}
-				if (done) {
-					loginListHashMap.remove(playerNameString);
-				}
-				return;
+	public static void unLogin(Player player) {// 使玩家退出登录
+		boolean done = true;
+		if (player == null) {
+			return;
+		}
+		String playerNameString = player.getName();
+		Statement statement;
+		PlayerPlayingTime playerplayingtime = new PlayerPlayingTime();
+		try {
+			statement = WLogin.mySQL.getConnection().createStatement();
+			ResultSet result = statement
+					.executeQuery("SELECT * FROM playerplayingtime WHERE playername = '" + playerNameString + "';");
+			while (result.next()) {
+				playerplayingtime.setPlayerNameString(result.getString(1));
+				playerplayingtime.setMin(result.getInt(2));
 			}
-		};
-		bukkitRunnable.runTaskAsynchronously(WLogin.main);
+			int playingtime = getTimeDifferenceMinutes(getNowTimestamp(), loginListHashMap.get(playerNameString));
+			if (playerplayingtime.getPlayerNameString() == null
+					|| playerplayingtime.getPlayerNameString().length() == 0) {
+				statement.executeUpdate("INSERT INTO playerplayingtime(playername,min)VALUES('" + playerNameString
+						+ "'," + playingtime + ")");
+				result.close();
+				statement.close();
+			} else {
+				playingtime = playingtime + playerplayingtime.getMin();
+				statement.executeUpdate("UPDATE playerplayingtime SET min = " + playingtime + " WHERE playername = '"
+						+ playerNameString + "'");
+				result.close();
+				statement.close();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			WLogin.main.getLogger().warning("更新玩家 " + playerNameString + " 的已游玩时间失败");
+			done = false;
+		}
+		if (done) {
+			loginListHashMap.remove(playerNameString);
+		}
+		return;
 	}
 
-	public static void unLogin(CommandSender sender,Player player) {// 使玩家退出登录
+	public static void unLogin(CommandSender sender, Player player) {// 使玩家退出登录
 		BukkitRunnable bukkitRunnable = new BukkitRunnable() {
 
 			@Override
