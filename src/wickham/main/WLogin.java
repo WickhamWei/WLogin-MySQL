@@ -6,11 +6,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import wickham.command.admin.UnLogin;
 import wickham.command.player.ChangePassword;
 import wickham.command.player.Login;
 import wickham.command.player.LoginData;
+import wickham.command.player.LoginFailData;
+import wickham.command.player.PlayingTime;
 import wickham.command.player.Register;
-import wickham.command.player.UnLogin;
 import wickham.listener.PlayerJoinListener;
 import wickham.listener.PlayerLoginListener;
 import wickham.listener.PlayerQuitGameListener;
@@ -74,6 +76,8 @@ public class WLogin extends JavaPlugin {
 		main.getCommand("unlogin").setExecutor(new UnLogin());
 		main.getCommand("changepassword").setExecutor(new ChangePassword());
 		main.getCommand("logindata").setExecutor(new LoginData());
+		main.getCommand("loginfaildata").setExecutor(new LoginFailData());
+		main.getCommand("playingtime").setExecutor(new PlayingTime());
 	}
 	
 	private void PreparingListener() {// 载入监听器

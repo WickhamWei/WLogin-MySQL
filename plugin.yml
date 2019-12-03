@@ -8,16 +8,22 @@ api-version: 1.14
 commands:
    login:
       description: 登录
-      usage: /login 你的密码
+      usage: /login <你的密码>
    register:
       description: 注册
-      usage: /register 你的密码 重复一遍你的密码
+      usage: /register <你的密码> <重复一遍你的密码>
    unlogin:
       description: 退出登录
-      usage: /unlogin playerName
+      usage: /unlogin <playerName>
    changepassword:
       description: 修改密码
       usage: /changepassword 你的密码 重复一遍你的密码 或者 /changepassword 玩家名字 密码 重复一遍密码
    logindata:
       description: 查询登录数据
-      usage: /logindata
+      usage: /logindata [page]
+   loginfaildata:
+      description: 查询登录失败数据
+      usage: /loginfaildata [page]
+   playingtime:
+      description: 查询游玩时间
+      usage: /playingtime

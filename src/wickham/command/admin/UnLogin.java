@@ -1,4 +1,4 @@
-package wickham.command.player;
+package wickham.command.admin;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -63,7 +63,7 @@ public class UnLogin implements CommandExecutor {
 				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
 }

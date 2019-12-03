@@ -79,49 +79,104 @@ public abstract class WLoginSYS {
 			return false;
 		}
 	}
+	public static void chackFailLoginData(Player senderPlayer, String targePlayerNameString, int page) {
+		Statement statement;
+		LinkedHashSet<PlayerLoginData> allDatas = new LinkedHashSet<PlayerLoginData>();
+		try {
+			statement=WLogin.mySQL.getConnection().createStatement();
+			ResultSet resultNum = statement.executeQuery(
+					"SELECT count(*) FROM playerlogindata WHERE playername = '" + targePlayerNameString + "' and loginable = 0");
+			int dataLength = 0;
+			while (resultNum.next()) {
+				dataLength = resultNum.getInt(1);// 获取数据长度
+			}
+			if (dataLength == 0) {// 没有数据
+				resultNum.close();
+				statement.close();
+				senderPlayer.sendMessage(WLogin.unknownPlayerEntityMsg());
+				return;
+			}
+			if (page > (int) Math.ceil((float) dataLength / 5)) {// 使页数不超过最大值
+				page = (int) Math.ceil((float) dataLength / 5);
+			}
+			int firstDataNum=(page-1)*5;
+			ResultSet resultData = statement
+					.executeQuery("SELECT logintime,loginable,inet_ntoa(ip) FROM playerlogindata WHERE playername = '"
+							+ targePlayerNameString + "' and loginable = 0" + " limit "+firstDataNum+",5;");
+			while (resultData.next()) {//获取数据
+				PlayerLoginData playerLoginData = new PlayerLoginData();
+				playerLoginData.setLoginTime(resultData.getTimestamp(1));
+				playerLoginData.setLoginable(resultData.getBoolean(2));
+				playerLoginData.setIpString(resultData.getString(3));
+				allDatas.add(playerLoginData);
+			}
+			senderPlayer.sendMessage(ChatColor.YELLOW + "---玩家 " + ChatColor.GREEN + targePlayerNameString
+					+ ChatColor.RED + " 登录失败数据"+ChatColor.YELLOW+" - 第 " + ChatColor.GREEN + page + ChatColor.YELLOW + " 页 - 总共 "
+					+ ChatColor.GREEN + (int) Math.ceil((float) dataLength / 5) + ChatColor.YELLOW + " 页---");
+			int tempNumber = 1;
+			for (PlayerLoginData data : allDatas) {//发送数据给玩家
+				senderPlayer.sendMessage(
+						ChatColor.YELLOW + "-第 " + ChatColor.GREEN + tempNumber + ChatColor.YELLOW + " 条数据-");
+				senderPlayer.sendMessage(ChatColor.YELLOW + "尝试登录的时间 " + ChatColor.GREEN
+						+ data.getLoginTime().toString());
+				senderPlayer.sendMessage(ChatColor.YELLOW + "尝试登录的IP地址 " + ChatColor.GREEN + data.getIpString());
+				tempNumber++;
+			}
+			resultNum.close();
+			resultData.close();
+			statement.close();
+			
+		} catch (SQLException e) {
+			// TODO: handle exception
+		}
+	}
 
 	public static void chackLoginData(Player senderPlayer, String targePlayerNameString, int page) {
 		Statement statement;
 		LinkedHashSet<PlayerLoginData> allDatas = new LinkedHashSet<PlayerLoginData>();
 		try {
 			statement = WLogin.mySQL.getConnection().createStatement();
-			ResultSet result = statement
-					.executeQuery("SELECT logintime,loginable,inet_ntoa(ip) FROM playerlogindata WHERE playername = '"
-							+ targePlayerNameString + "';");
-			while (result.next()) {
-				PlayerLoginData playerLoginData = new PlayerLoginData();
-				playerLoginData.setLoginTime(result.getTimestamp(1));
-				playerLoginData.setLoginable(result.getBoolean(2));
-				playerLoginData.setIpString(result.getString(3));
-				allDatas.add(playerLoginData);
+			ResultSet resultNum = statement.executeQuery(
+					"SELECT count(*) FROM playerlogindata WHERE playername = '" + targePlayerNameString + "'");
+			int dataLength = 0;
+			while (resultNum.next()) {
+				dataLength = resultNum.getInt(1);// 获取数据长度
 			}
-			if (allDatas.size() == 0) {
-				result.close();
+			if (dataLength == 0) {// 没有数据
+				resultNum.close();
 				statement.close();
 				senderPlayer.sendMessage(WLogin.unknownPlayerEntityMsg());
 				return;
 			}
-			if (page > (int) Math.ceil((float) allDatas.size() / 5)) {
-				page = (int) Math.ceil((float) allDatas.size() / 5);
+			if (page > (int) Math.ceil((float) dataLength / 5)) {// 使页数不超过最大值
+				page = (int) Math.ceil((float) dataLength / 5);
+			}
+			int firstDataNum=(page-1)*5;
+			ResultSet resultData = statement
+					.executeQuery("SELECT logintime,loginable,inet_ntoa(ip) FROM playerlogindata WHERE playername = '"
+							+ targePlayerNameString + "'" + " limit "+firstDataNum+",5;");
+			while (resultData.next()) {//获取数据
+				PlayerLoginData playerLoginData = new PlayerLoginData();
+				playerLoginData.setLoginTime(resultData.getTimestamp(1));
+				playerLoginData.setLoginable(resultData.getBoolean(2));
+				playerLoginData.setIpString(resultData.getString(3));
+				allDatas.add(playerLoginData);
 			}
 			senderPlayer.sendMessage(ChatColor.YELLOW + "---玩家 " + ChatColor.GREEN + targePlayerNameString
 					+ ChatColor.YELLOW + " 登录数据 - 第 " + ChatColor.GREEN + page + ChatColor.YELLOW + " 页 - 总共 "
-					+ ChatColor.GREEN + (int) Math.ceil((float) allDatas.size() / 5) + ChatColor.YELLOW + " 页---");
-			int targeDataMin = page * 5 - 4;
-			int targeDataMax = page * 5;
+					+ ChatColor.GREEN + (int) Math.ceil((float) dataLength / 5) + ChatColor.YELLOW + " 页---");
 			int tempNumber = 1;
-			for (PlayerLoginData data : allDatas) {
-				if (tempNumber >= targeDataMin && tempNumber <= targeDataMax) {
-					senderPlayer.sendMessage(
-							ChatColor.YELLOW + "-第 " + ChatColor.GREEN + tempNumber + ChatColor.YELLOW + " 条数据-");
-					senderPlayer.sendMessage(ChatColor.YELLOW + "尝试登录的时间 " + ChatColor.GREEN
-							+ data.getLoginTime().toString() + ChatColor.YELLOW + " 是否登录成功 " + ChatColor.GREEN
-							+ booleanToString(data.isLoginable()));
-					senderPlayer.sendMessage(ChatColor.YELLOW + " 尝试登录的IP地址 " + ChatColor.GREEN + data.getIpString());
-				}
+			for (PlayerLoginData data : allDatas) {//发送数据给玩家
+				senderPlayer.sendMessage(
+						ChatColor.YELLOW + "-第 " + ChatColor.GREEN + tempNumber + ChatColor.YELLOW + " 条数据-");
+				senderPlayer.sendMessage(ChatColor.YELLOW + "尝试登录的时间 " + ChatColor.GREEN
+						+ data.getLoginTime().toString() + ChatColor.YELLOW + " 是否登录成功 " + ChatColor.GREEN
+						+ booleanToString(data.isLoginable()));
+				senderPlayer.sendMessage(ChatColor.YELLOW + "尝试登录的IP地址 " + ChatColor.GREEN + data.getIpString());
 				tempNumber++;
 			}
-			result.close();
+			resultNum.close();
+			resultData.close();
 			statement.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -226,6 +281,34 @@ public abstract class WLoginSYS {
 		for (String playerNameString : loginListHashMap.keySet()) {
 			unLogin(WLogin.main.getServer().getPlayer(playerNameString));
 		}
+	}
+	
+	public static int getPlayerNowPlayingTime(Player targePlayer) {// 获得本次游戏的时间
+		String targePlayerNameString=targePlayer.getName();
+		Timestamp loginTimestamp=loginListHashMap.get(targePlayerNameString);
+		if(loginTimestamp==null) {
+			return 0;
+		}
+		return getTimeDifferenceMinutes(getNowTimestamp(), loginTimestamp);
+	}
+	
+	public static int getPlayerDataBasePlayingTime(String targePlayerNameString) {// 获得数据库存储的游戏时间
+		Statement statement;
+		int playerPlayingTimeInDatabase=0;
+		try {
+			statement=WLogin.mySQL.getConnection().createStatement();
+			ResultSet result = statement
+					.executeQuery("SELECT * FROM playerplayingtime WHERE playername = '" + targePlayerNameString + "';");
+			while (result.next()) {
+				playerPlayingTimeInDatabase=result.getInt(2);
+			}
+			result.close();
+			statement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			// TODO: handle exception
+		}
+		return playerPlayingTimeInDatabase;
 	}
 
 	public static void unLogin(Player player) {// 使玩家退出登录
