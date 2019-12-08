@@ -4,5 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="src/api/mysql-connector-java-5.1.48-bin.jar"/>
 	<classpathentry kind="lib" path="src/api/spigot-api-1.14.4-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="src/api/gson-2.8.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

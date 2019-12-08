@@ -20,16 +20,19 @@ public class Register implements CommandExecutor {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			if (args.length == 2 && args[0].equals(args[1])) {
-
 				// TODO 自动生成的方法存根
 				if (!WLoginSYS.isRegister(player.getName())) {
-					WLoginSYS.register(player, args[0]);
-					WPlayerLoginEvent wPlayerLoginEvent = new WPlayerLoginEvent(player);
-					Bukkit.getPluginManager().callEvent(wPlayerLoginEvent);
-					if (!wPlayerLoginEvent.isCancelled()) {
-						WLoginSYS.login(player);
-						WLogin.sendMsg(player, ChatColor.GREEN + "注册成功，已经自动登录");
-						player.setGameMode(GameMode.SURVIVAL);
+					if(WLoginSYS.checkPasswordForm(player, args[0])) {
+						WLoginSYS.register(player, args[0]);
+						WPlayerLoginEvent wPlayerLoginEvent = new WPlayerLoginEvent(player);
+						Bukkit.getPluginManager().callEvent(wPlayerLoginEvent);
+						if (!wPlayerLoginEvent.isCancelled()) {
+							WLoginSYS.login(player);
+							WLogin.sendMsg(player, ChatColor.GREEN + "注册成功，已经自动登录");
+							player.setGameMode(GameMode.SURVIVAL);
+						}
+					}else {
+						return false;
 					}
 				} else {
 					player.sendMessage(ChatColor.YELLOW + "你已经注册了");

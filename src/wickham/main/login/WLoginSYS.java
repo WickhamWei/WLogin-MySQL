@@ -39,7 +39,7 @@ public abstract class WLoginSYS {
 				String playerNameString = player.getName();
 				Statement statement;
 				try {
-					statement = WLogin.mySQL.getConnection().createStatement();
+					statement = WLogin.main.getDatabase().getConnection().createStatement();
 					statement.executeUpdate(
 							"INSERT INTO playerpassword(playername,password,ip) VALUES ('" + playerNameString + "','"
 									+ passwordString + "',inet_aton('" + getPlayerIPAddress(player) + "'))");
@@ -61,7 +61,7 @@ public abstract class WLoginSYS {
 		Statement statement;
 		String playerNameFromDBString = null;
 		try {
-			statement = WLogin.mySQL.getConnection().createStatement();
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
 			ResultSet result = statement
 					.executeQuery("SELECT * FROM playerpassword WHERE playername = '" + playerNameString + "';");
 			while (result.next()) {
@@ -79,11 +79,11 @@ public abstract class WLoginSYS {
 			return false;
 		}
 	}
-	public static void chackFailLoginData(Player senderPlayer, String targePlayerNameString, int page) {
+	public static void checkFailLoginData(Player senderPlayer, String targePlayerNameString, int page) {
 		Statement statement;
 		LinkedHashSet<PlayerLoginData> allDatas = new LinkedHashSet<PlayerLoginData>();
 		try {
-			statement=WLogin.mySQL.getConnection().createStatement();
+			statement=WLogin.main.getDatabase().getConnection().createStatement();
 			ResultSet resultNum = statement.executeQuery(
 					"SELECT count(*) FROM playerlogindata WHERE playername = '" + targePlayerNameString + "' and loginable = 0");
 			int dataLength = 0;
@@ -131,11 +131,11 @@ public abstract class WLoginSYS {
 		}
 	}
 
-	public static void chackLoginData(Player senderPlayer, String targePlayerNameString, int page) {
+	public static void checkLoginData(Player senderPlayer, String targePlayerNameString, int page) {
 		Statement statement;
 		LinkedHashSet<PlayerLoginData> allDatas = new LinkedHashSet<PlayerLoginData>();
 		try {
-			statement = WLogin.mySQL.getConnection().createStatement();
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
 			ResultSet resultNum = statement.executeQuery(
 					"SELECT count(*) FROM playerlogindata WHERE playername = '" + targePlayerNameString + "'");
 			int dataLength = 0;
@@ -192,12 +192,12 @@ public abstract class WLoginSYS {
 		}
 	}
 
-	public static boolean chackPassword(Player player, String passwordString) {// 检查密码是否正确
+	public static boolean checkPassword(Player player, String passwordString) {// 检查密码是否正确
 		String playerNameString = player.getName();
 		Statement statement;
 		String passwordFromDBString = null;
 		try {
-			statement = WLogin.mySQL.getConnection().createStatement();
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
 			ResultSet result = statement
 					.executeQuery("SELECT password FROM playerpassword WHERE playername = '" + playerNameString + "';");
 			while (result.next()) {
@@ -228,7 +228,7 @@ public abstract class WLoginSYS {
 				// TODO Auto-generated method stub
 				boolean done = true;
 				try {
-					Statement statement = WLogin.mySQL.getConnection().createStatement();
+					Statement statement = WLogin.main.getDatabase().getConnection().createStatement();
 					String sql = "INSERT INTO playerlogindata(playername,logintime,loginable,ip) VALUES ('"
 							+ playerNameString + "', now() ," + true + ",inet_aton('" + getPlayerIPAddress(player)
 							+ "'))";
@@ -260,7 +260,7 @@ public abstract class WLoginSYS {
 				String playerNameString = player.getName();
 				// TODO Auto-generated method stub
 				try {
-					Statement statement = WLogin.mySQL.getConnection().createStatement();
+					Statement statement = WLogin.main.getDatabase().getConnection().createStatement();
 					String sql = "INSERT INTO playerlogindata(playername,logintime,loginable,ip) VALUES ('"
 							+ playerNameString + "', now() ," + false + ",inet_aton('" + getPlayerIPAddress(player)
 							+ "'))";
@@ -296,7 +296,7 @@ public abstract class WLoginSYS {
 		Statement statement;
 		int playerPlayingTimeInDatabase=0;
 		try {
-			statement=WLogin.mySQL.getConnection().createStatement();
+			statement=WLogin.main.getDatabase().getConnection().createStatement();
 			ResultSet result = statement
 					.executeQuery("SELECT * FROM playerplayingtime WHERE playername = '" + targePlayerNameString + "';");
 			while (result.next()) {
@@ -320,7 +320,7 @@ public abstract class WLoginSYS {
 		Statement statement;
 		PlayerPlayingTime playerplayingtime = new PlayerPlayingTime();
 		try {
-			statement = WLogin.mySQL.getConnection().createStatement();
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
 			ResultSet result = statement
 					.executeQuery("SELECT * FROM playerplayingtime WHERE playername = '" + playerNameString + "';");
 			while (result.next()) {
@@ -369,7 +369,7 @@ public abstract class WLoginSYS {
 				Statement statement;
 				PlayerPlayingTime playerplayingtime = new PlayerPlayingTime();
 				try {
-					statement = WLogin.mySQL.getConnection().createStatement();
+					statement = WLogin.main.getDatabase().getConnection().createStatement();
 					ResultSet result = statement.executeQuery(
 							"SELECT * FROM playerplayingtime WHERE playername = '" + playerNameString + "';");
 					while (result.next()) {
@@ -406,20 +406,18 @@ public abstract class WLoginSYS {
 		bukkitRunnable.runTaskAsynchronously(WLogin.main);
 	}
 
-	public static boolean changePassword(CommandSender sender, String targePlayerNameString, String newPasswordString) {// 修改密码
+	public static boolean changePassword(Player targePlayer,String oldPasswordString, String newPasswordString) {// 修改密码
 		// TODO Auto-generated method stub
-		String senderNameString;
-		Player player = null;
-		if (sender instanceof Player) {
-			player = (Player) sender;
-			senderNameString = player.getName();
-		} else {
-			senderNameString = "ADMIN";
+		if (!checkPassword(targePlayer, oldPasswordString)) {
+			targePlayer.sendMessage(ChatColor.RED+"旧密码错误");
+			return false;
 		}
+		String targePlayerNameString=targePlayer.getName();
+		String senderNameString=targePlayer.getName();
 		PlayerPassword playerPassword = new PlayerPassword();
 		Statement statement;
 		try {
-			statement = WLogin.mySQL.getConnection().createStatement();
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
 			ResultSet result = statement
 					.executeQuery("SELECT * FROM playerpassword WHERE playername = '" + targePlayerNameString + "';");
 			while (result.next()) {
@@ -435,7 +433,7 @@ public abstract class WLoginSYS {
 						"INSERT INTO playeroldpassword(sendername,playername,time,oldpassword,ip)VALUES('"
 								+ senderNameString + "','" + targePlayerNameString + "', now() ,'"
 								+ playerPassword.getPlayerPasswordString() + "',inet_aton('"
-								+ getPlayerIPAddress(player) + "'))");
+								+ getPlayerIPAddress(targePlayer) + "'))");
 			}
 			statement.executeUpdate("UPDATE playerpassword SET password = '" + newPasswordString
 					+ "' WHERE playername = '" + targePlayerNameString + "'");
@@ -466,6 +464,77 @@ public abstract class WLoginSYS {
 		int minutes = (int) (((t1 - t2) / 1000 - hours * (60 * 60)) / 60 + hours * 60);
 		return minutes;
 	}
+	
+	public static boolean checkPasswordForm(Player player,String passwordString) {
+		if(!(passwordString.length()>=6&&passwordString.length()<=18)) {
+			player.sendMessage(ChatColor.RED+"密码长度应大于5或小于19");
+			return false;
+		}else {
+			if(!(passwordString.matches("^.*[a-zA-Z]+.*$") && passwordString.matches("^.*[0-9]+.*$"))) {
+				player.sendMessage(ChatColor.RED+"密码应由数字和字母组成");
+				return false;
+			}else {
+				return true;
+			}	
+		}
+		
+	}
+	
+	public static void checkLastLoginDataNormal(Player player) {
+		String targePlayerNameString=player.getName();
+		Statement statement;
+		try {
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			ResultSet resultCount = statement.executeQuery(
+					"SELECT count(*) FROM playerlogindata WHERE playername = '" + targePlayerNameString + "'");
+			int dataLength = 0;
+			while (resultCount.next()) {
+				dataLength = resultCount.getInt(1);// 获取数据长度
+			}
+			if (dataLength <= 1) {// 没有数据
+				resultCount.close();
+				statement.close();
+				return;
+			}
+			int firstDataNum=dataLength-2;
+			PlayerLoginData playerLoginData = new PlayerLoginData();
+			ResultSet resultData = statement
+					.executeQuery("SELECT logintime,loginable,inet_ntoa(ip) FROM playerlogindata WHERE playername = '"
+							+ targePlayerNameString + "'" + "limit "+firstDataNum+",1;");
+			while (resultData.next()) {//获取数据
+				playerLoginData.setLoginTime(resultData.getTimestamp(1));
+				playerLoginData.setLoginable(resultData.getBoolean(2));
+				playerLoginData.setIpString(resultData.getString(3));
+			}
+			Boolean abNormalBoolean=false;
+			if(!playerLoginData.getIpString().equals(getPlayerIPAddress(player))) {
+				//发送数据给玩家
+				player.sendMessage(ChatColor.YELLOW+"-检测到异地登录记录-");
+				abNormalBoolean=true;
+			}
+			if(!playerLoginData.isLoginable()) {
+				player.sendMessage(ChatColor.YELLOW+"-检测到登录失败记录-");
+				abNormalBoolean=true;
+			}
+			if(abNormalBoolean) {
+				player.sendMessage(ChatColor.RED+"-异常信息-");
+				player.sendMessage(ChatColor.YELLOW + "尝试登录的时间 " + ChatColor.GREEN
+						+ playerLoginData.getLoginTime().toString() + ChatColor.YELLOW + " 是否登录成功 " + ChatColor.GREEN
+						+ booleanToString(playerLoginData.isLoginable()));
+				player.sendMessage(ChatColor.YELLOW + "尝试登录的IP地址 " + ChatColor.GREEN + playerLoginData.getIpString());
+			}else {
+				player.sendMessage(ChatColor.GREEN+"-账号状态正常-");
+			}
+		
+			resultCount.close();
+			resultData.close();
+			statement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			// TODO: handle exception
+		}
+		return;
+	}
 
 	public static void initTable() {// 初始化表
 		BukkitRunnable bukkitRunnable = new BukkitRunnable() {
@@ -474,7 +543,7 @@ public abstract class WLoginSYS {
 				// TODO Auto-generated method stub
 				Statement statement;
 				try {
-					statement = WLogin.mySQL.getConnection().createStatement();
+					statement = WLogin.main.getDatabase().getConnection().createStatement();
 					String sql = "CREATE TABLE IF NOT EXISTS `playerpassword`(" + "`playername` VARCHAR(40) NOT NULL,"
 							+ "`password` VARCHAR(40) NOT NULL," + "`ip` bigint(20) NOT NULL,"
 							+ "PRIMARY KEY ( `playername` )" + ")ENGINE=InnoDB DEFAULT CHARSET=utf8;";
@@ -486,7 +555,7 @@ public abstract class WLoginSYS {
 					WLogin.main.getLogger().warning("创建 playerpassword 失败");
 				}
 				try {
-					statement = WLogin.mySQL.getConnection().createStatement();
+					statement = WLogin.main.getDatabase().getConnection().createStatement();
 					String sql = "CREATE TABLE IF NOT EXISTS `playerlogindata`(" + "`playername` VARCHAR(40) NOT NULL,"
 							+ "`logintime` TIMESTAMP NOT NULL," + "`loginable` TINYINT(1) NOT NULL,"
 							+ "`ip` bigint(20) NOT NULL,"
@@ -500,7 +569,7 @@ public abstract class WLoginSYS {
 					WLogin.main.getLogger().warning("创建 playerlogindata 失败");
 				}
 				try {
-					statement = WLogin.mySQL.getConnection().createStatement();
+					statement = WLogin.main.getDatabase().getConnection().createStatement();
 					String sql = "CREATE TABLE IF NOT EXISTS `playerplayingtime`("
 							+ "`playername` VARCHAR(40) NOT NULL," + "`min` INT NOT NULL,"
 							+ "FOREIGN KEY (playername) REFERENCES playerpassword(playername)," + "UNIQUE (playername)"
@@ -513,7 +582,7 @@ public abstract class WLoginSYS {
 					WLogin.main.getLogger().warning("创建 playerplayingtime 失败");
 				}
 				try {
-					statement = WLogin.mySQL.getConnection().createStatement();
+					statement = WLogin.main.getDatabase().getConnection().createStatement();
 					String sql = "CREATE TABLE IF NOT EXISTS `playeroldpassword`("
 							+ "`sendername` VARCHAR(40) NOT NULL," + "`playername` VARCHAR(40) NOT NULL,"
 							+ "`time` TIMESTAMP NOT NULL," + "`oldpassword` VARCHAR(40) NOT NULL," + "`ip` bigint(20),"
@@ -527,7 +596,7 @@ public abstract class WLoginSYS {
 					WLogin.main.getLogger().warning("创建 playeroldpassword 失败");
 				}
 				try {
-					statement = WLogin.mySQL.getConnection().createStatement();
+					statement = WLogin.main.getDatabase().getConnection().createStatement();
 					String sql = "CREATE TABLE IF NOT EXISTS `playeristeenagers`("
 							+ "`playername` VARCHAR(40) NOT NULL,"
 							+ "FOREIGN KEY (playername) REFERENCES playerpassword(playername),"
@@ -540,7 +609,7 @@ public abstract class WLoginSYS {
 					WLogin.main.getLogger().warning("创建 playeristeenagers 失败");
 				}
 				try {
-					statement = WLogin.mySQL.getConnection().createStatement();
+					statement = WLogin.main.getDatabase().getConnection().createStatement();
 					String sql = "CREATE TABLE IF NOT EXISTS `banplayerdata`(" + "`playername` VARCHAR(40) NOT NULL,"
 							+ "`reason` VARCHAR(300) NOT NULL," + "`time` TIMESTAMP NOT NULL," + "`time_long` INT,"
 							+ "FOREIGN KEY (playername) REFERENCES playerpassword(playername)"

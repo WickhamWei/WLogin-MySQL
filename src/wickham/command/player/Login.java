@@ -22,7 +22,7 @@ public class Login implements CommandExecutor {
 
 				if (WLoginSYS.isRegister(player.getName())) {
 					if (!WLoginSYS.isLogin(player)) {
-						if (WLoginSYS.chackPassword(player, args[0])) {
+						if (WLoginSYS.checkPassword(player, args[0])) {
 							WPlayerLoginEvent wPlayerLoginEvent = new WPlayerLoginEvent(player);
 							Bukkit.getPluginManager().callEvent(wPlayerLoginEvent);
 							if (!wPlayerLoginEvent.isCancelled()) {

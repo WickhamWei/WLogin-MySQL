@@ -21,7 +21,7 @@ public class LoginFailData implements CommandExecutor{
 					@Override
 					public void run() {
 						// TODO 自动生成的方法存根
-						WLoginSYS.chackFailLoginData(player, playerNameString, 1);
+						WLoginSYS.checkFailLoginData(player, playerNameString, 1);
 					}
 				};
 				bukkitRunnable.runTaskAsynchronously(WLogin.main);
@@ -35,7 +35,7 @@ public class LoginFailData implements CommandExecutor{
 						@Override
 						public void run() {
 							// TODO 自动生成的方法存根
-							WLoginSYS.chackFailLoginData(player, playerNameString, page);
+							WLoginSYS.checkFailLoginData(player, playerNameString, page);
 						}
 					};
 					bukkitRunnable.runTaskAsynchronously(WLogin.main);

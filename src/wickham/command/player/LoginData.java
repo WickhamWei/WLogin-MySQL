@@ -22,7 +22,7 @@ public class LoginData implements CommandExecutor {
 					@Override
 					public void run() {
 						// TODO 自动生成的方法存根
-						WLoginSYS.chackLoginData(player, playerNameString, 1);
+						WLoginSYS.checkLoginData(player, playerNameString, 1);
 					}
 				};
 				bukkitRunnable.runTaskAsynchronously(WLogin.main);
@@ -36,7 +36,7 @@ public class LoginData implements CommandExecutor {
 						@Override
 						public void run() {
 							// TODO 自动生成的方法存根
-							WLoginSYS.chackLoginData(player, playerNameString, page);
+							WLoginSYS.checkLoginData(player, playerNameString, page);
 						}
 					};
 					bukkitRunnable.runTaskAsynchronously(WLogin.main);

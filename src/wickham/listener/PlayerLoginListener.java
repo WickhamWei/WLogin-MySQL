@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import wickham.event.WPlayerLoginEvent;
 import wickham.main.WLogin;
@@ -22,6 +23,14 @@ public class PlayerLoginListener implements Listener {
 		int hour=allMin/60;
 		int min=allMin%60;
 		player.sendMessage(ChatColor.YELLOW + "您已游戏了 "+ChatColor.GREEN+hour+ChatColor.YELLOW+" 小时 "+ChatColor.GREEN+min+ChatColor.YELLOW+" 分钟");
-		return;
+		BukkitRunnable bukkitRunnable=new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				// TODO 自动生成的方法存根
+				WLoginSYS.checkLastLoginDataNormal(player);
+			}
+		};
+		bukkitRunnable.runTaskLater(WLogin.main, 40);
 	}
 }

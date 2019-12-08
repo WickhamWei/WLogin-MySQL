@@ -3,7 +3,7 @@ main: wickham.main.WLogin
 load: STARTUP
 authors: [Wickham, HomeRich]
 website: https://github.com/WickhamWei/WLogin
-version: 1.0
+version: 1.0.0
 api-version: 1.14
 commands:
    login:
@@ -17,7 +17,7 @@ commands:
       usage: /unlogin <playerName>
    changepassword:
       description: 修改密码
-      usage: /changepassword 你的密码 重复一遍你的密码 或者 /changepassword 玩家名字 密码 重复一遍密码
+      usage: /changepassword <你的旧密码> <你的新密码> <重复一遍你的新密码>
    logindata:
       description: 查询登录数据
       usage: /logindata [page]
