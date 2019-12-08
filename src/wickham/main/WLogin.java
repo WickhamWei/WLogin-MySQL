@@ -29,7 +29,7 @@ public class WLogin extends JavaPlugin {
 	private boolean enableMySQL;// mysql启动开关
 	private boolean mySQLNormal=true;
 	private FileConfiguration config = getConfig();
-	public static final String url="https://api.github.com/repos/WickhamWei/Wlogin/releases/latest";
+	public static final String url="https://api.github.com/repos/WickhamWei/WLogin/releases/latest";
 
 	@Override
 	public void onEnable() {
