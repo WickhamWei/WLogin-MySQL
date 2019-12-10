@@ -7,12 +7,13 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import wickham.command.admin.PasswordChangeHistory;
 import wickham.command.admin.UnLogin;
+import wickham.command.normal.LoginData;
+import wickham.command.normal.LoginFailData;
+import wickham.command.normal.PlayingTime;
 import wickham.command.player.ChangePassword;
 import wickham.command.player.Login;
-import wickham.command.player.LoginData;
-import wickham.command.player.LoginFailData;
-import wickham.command.player.PlayingTime;
 import wickham.command.player.Register;
 import wickham.listener.PlayerJoinListener;
 import wickham.listener.PlayerLoginListener;
@@ -20,6 +21,7 @@ import wickham.listener.PlayerQuitGameListener;
 import wickham.listener.PlayerUnLoginLimitListener;
 import wickham.listener.ServerLoadEventListener;
 import wickham.main.login.WLoginSYS;
+import wickham.main.mysql.AllTables;
 import wickham.main.mysql.MySQL;
 
 public class WLogin extends JavaPlugin {
@@ -55,6 +57,7 @@ public class WLogin extends JavaPlugin {
 		main.getCommand("logindata").setExecutor(new LoginData());
 		main.getCommand("loginfaildata").setExecutor(new LoginFailData());
 		main.getCommand("playingtime").setExecutor(new PlayingTime());
+		main.getCommand("passwordchangehistory").setExecutor(new PasswordChangeHistory());
 	}
 	
 	private void PreparingListener() {// 载入监听器
@@ -79,7 +82,7 @@ public class WLogin extends JavaPlugin {
 	}
 	
 	public static String unknownPlayerEntityMsg() {
-		return ChatColor.RED+"玩家不在线或不存在";
+		return ChatColor.RED+"玩家不在线、不存在或者数据不存在";
 	}
 	
 	public static String playerEntityOnlyMsg() {
@@ -124,7 +127,7 @@ public class WLogin extends JavaPlugin {
 			try {// 检查是否启动mysql
 				if (mySQL.isConnection()) {
 					getLogger().info("成功连接至数据库");
-					WLoginSYS.initTable();
+					AllTables.initTable();
 				} 
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -150,5 +153,9 @@ public class WLogin extends JavaPlugin {
 	
 	public boolean isMySQLNormal() {
 		return mySQLNormal;
+	}
+	
+	public void mySQLError() {
+		mySQLNormal=false;
 	}
 }

@@ -3,7 +3,7 @@ main: wickham.main.WLogin
 load: STARTUP
 authors: [Wickham, HomeRich]
 website: https://github.com/WickhamWei/WLogin
-version: 1.0.0
+version: 1.0.1
 api-version: 1.14
 commands:
    login:
@@ -20,10 +20,13 @@ commands:
       usage: /changepassword <你的旧密码> <你的新密码> <重复一遍你的新密码>
    logindata:
       description: 查询登录数据
-      usage: /logindata [page]
+      usage: /logindata [page] 或者 /logindata <playername> <page>
    loginfaildata:
       description: 查询登录失败数据
-      usage: /loginfaildata [page]
+      usage: /loginfaildata [page] 或者 /loginfaildata <playername> <page>
    playingtime:
       description: 查询游玩时间
       usage: /playingtime
+   passwordchangehistory:
+      description: 查询密码修改记录
+      usage: /passwordchangehistory <playername> [page]

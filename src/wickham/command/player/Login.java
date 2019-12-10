@@ -33,6 +33,7 @@ public class Login implements CommandExecutor {
 						} else {
 							WLoginSYS.loginFail(player);
 							WLogin.sendMsg(player, ChatColor.RED + "密码错误");
+							WLoginSYS.warningToOpSbPasswordError(player.getName());
 						}
 					} else {
 						player.sendMessage(ChatColor.YELLOW + "你已经登录了");

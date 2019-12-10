@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 import org.bukkit.ChatColor;
@@ -14,16 +15,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import wickham.main.WLogin;
-import wickham.main.mysql.tables.PlayerLoginData;
-import wickham.main.mysql.tables.PlayerPassword;
-import wickham.main.mysql.tables.PlayerPlayingTime;
+import wickham.main.mysql.tables.*;
 
 public abstract class WLoginSYS {
 
-	private static HashMap<String, Timestamp> loginListHashMap = new HashMap<String, Timestamp>(); // 存放登录的玩家名字和登录的时间戳
+	private static HashMap<String, Timestamp> playerLoginList = new HashMap<String, Timestamp>(); // 存放登录的玩家名字和登录的时间戳
+	private static HashSet<String> opLoginList= new HashSet<String>();
 
 	public static boolean isLogin(String playerNameString) { // 判断玩家是否登录
-		return loginListHashMap.containsKey(playerNameString);
+		return playerLoginList.containsKey(playerNameString);
 	}
 
 	public static boolean isLogin(Player player) {
@@ -183,6 +183,61 @@ public abstract class WLoginSYS {
 			// TODO: handle exception
 		}
 	}
+	
+	public static void checkOldPasswordData(Player senderPlayer, String targePlayerNameString, int page) {
+		Statement statement;
+		LinkedHashSet<PlayerOldPassword> allDatas = new LinkedHashSet<PlayerOldPassword>();
+		try {
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			ResultSet resultNum = statement.executeQuery(
+					"SELECT count(*) FROM playeroldpassword WHERE playername = '" + targePlayerNameString + "'");
+			int dataLength = 0;
+			while (resultNum.next()) {
+				dataLength = resultNum.getInt(1);// 获取数据长度
+			}
+			if (dataLength == 0) {// 没有数据
+				resultNum.close();
+				statement.close();
+				senderPlayer.sendMessage(WLogin.unknownPlayerEntityMsg());
+				return;
+			}
+			if (page > (int) Math.ceil((float) dataLength / 5)) {// 使页数不超过最大值
+				page = (int) Math.ceil((float) dataLength / 5);
+			}
+			int firstDataNum=(page-1)*5;
+			ResultSet resultData = statement
+					.executeQuery("SELECT sendername,playername,time,oldpassword,inet_ntoa(ip) FROM playeroldpassword WHERE playername = '"
+							+ targePlayerNameString + "'" + " limit "+firstDataNum+",5;");
+			while (resultData.next()) {//获取数据
+				PlayerOldPassword playerOldPassword=new PlayerOldPassword();
+				playerOldPassword.setSenderNameString(resultData.getString(1));
+				playerOldPassword.setPlayerNameString(resultData.getString(2));
+				playerOldPassword.setTime(resultData.getTimestamp(3));
+				playerOldPassword.setOldPasswordString(resultData.getString(4));
+				playerOldPassword.setIpString(resultData.getString(5));
+				allDatas.add(playerOldPassword);
+			}
+			senderPlayer.sendMessage(ChatColor.YELLOW + "---玩家 " + ChatColor.GREEN + targePlayerNameString
+					+ ChatColor.YELLOW + " 密码修改数据 - 第 " + ChatColor.GREEN + page + ChatColor.YELLOW + " 页 - 总共 "
+					+ ChatColor.GREEN + (int) Math.ceil((float) dataLength / 5) + ChatColor.YELLOW + " 页---");
+			int tempNumber = 1;
+			for (PlayerOldPassword data : allDatas) {//发送数据给玩家
+				senderPlayer.sendMessage(
+						ChatColor.YELLOW + "-第 " + ChatColor.GREEN + tempNumber + ChatColor.YELLOW + " 条数据-");
+				senderPlayer.sendMessage(ChatColor.YELLOW + "修改密码的时间 " + ChatColor.GREEN
+						+ data.getTime().toString() + ChatColor.YELLOW + " 密码修改者 " + ChatColor.GREEN
+						+ data.getSenderNameString());
+				senderPlayer.sendMessage(ChatColor.YELLOW + "修改者的IP地址 " + ChatColor.GREEN + data.getIpString());
+				tempNumber++;
+			}
+			resultNum.close();
+			resultData.close();
+			statement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			// TODO: handle exception
+		}
+	}
 
 	public static String booleanToString(Boolean targeBoolean) {
 		if (targeBoolean) {
@@ -243,7 +298,10 @@ public abstract class WLoginSYS {
 					return;
 				}
 				if (done) {
-					loginListHashMap.put(playerNameString, getNowTimestamp());
+					playerLoginList.put(playerNameString, getNowTimestamp());
+					if(player.isOp()) {
+						opLoginList.add(playerNameString);
+					}
 				}
 				return;
 			}
@@ -278,14 +336,14 @@ public abstract class WLoginSYS {
 	}
 
 	public static void unLoginAllPlayer() {
-		for (String playerNameString : loginListHashMap.keySet()) {
+		for (String playerNameString : playerLoginList.keySet()) {
 			unLogin(WLogin.main.getServer().getPlayer(playerNameString));
 		}
 	}
 	
 	public static int getPlayerNowPlayingTime(Player targePlayer) {// 获得本次游戏的时间
 		String targePlayerNameString=targePlayer.getName();
-		Timestamp loginTimestamp=loginListHashMap.get(targePlayerNameString);
+		Timestamp loginTimestamp=playerLoginList.get(targePlayerNameString);
 		if(loginTimestamp==null) {
 			return 0;
 		}
@@ -327,7 +385,7 @@ public abstract class WLoginSYS {
 				playerplayingtime.setPlayerNameString(result.getString(1));
 				playerplayingtime.setMin(result.getInt(2));
 			}
-			int playingtime = getTimeDifferenceMinutes(getNowTimestamp(), loginListHashMap.get(playerNameString));
+			int playingtime = getTimeDifferenceMinutes(getNowTimestamp(), playerLoginList.get(playerNameString));
 			if (playerplayingtime.getPlayerNameString() == null
 					|| playerplayingtime.getPlayerNameString().length() == 0) {
 				statement.executeUpdate("INSERT INTO playerplayingtime(playername,min)VALUES('" + playerNameString
@@ -348,7 +406,10 @@ public abstract class WLoginSYS {
 			done = false;
 		}
 		if (done) {
-			loginListHashMap.remove(playerNameString);
+			playerLoginList.remove(playerNameString);
+			if(player.isOp()) {
+				opLoginList.remove(playerNameString);
+			}
 		}
 		return;
 	}
@@ -377,7 +438,7 @@ public abstract class WLoginSYS {
 						playerplayingtime.setMin(result.getInt(2));
 					}
 					int playingtime = getTimeDifferenceMinutes(getNowTimestamp(),
-							loginListHashMap.get(playerNameString));
+							playerLoginList.get(playerNameString));
 					if (playerplayingtime.getPlayerNameString() == null
 							|| playerplayingtime.getPlayerNameString().length() == 0) {
 						statement.executeUpdate("INSERT INTO playerplayingtime(playername,min)VALUES('"
@@ -398,7 +459,7 @@ public abstract class WLoginSYS {
 					done = false;
 				}
 				if (done) {
-					loginListHashMap.remove(playerNameString);
+					playerLoginList.remove(playerNameString);
 				}
 				return;
 			}
@@ -451,6 +512,17 @@ public abstract class WLoginSYS {
 	public static Timestamp getNowTimestamp() { // 获得现在的时间戳
 		Timestamp timestamp = new Timestamp(new Date().getTime());
 		return timestamp;
+	}
+	
+	public static void sendMsgToAllOp(String msgString) {
+		for (String opNameString:opLoginList) {
+			WLogin.main.getServer().getPlayer(opNameString).sendMessage(msgString);
+		}
+	}
+	
+	public static void warningToOpSbPasswordError(String errorPasswordPlayerName) {
+		sendMsgToAllOp(ChatColor.RED+"玩家 "+ChatColor.YELLOW+errorPasswordPlayerName+ChatColor.RED+" 输错了他的密码");
+		WLogin.main.getServer().getLogger().warning("玩家 "+errorPasswordPlayerName+" 输错了他的密码");
 	}
 
 	public static String getPlayerIPAddress(Player player) {// 获得玩家的IP地址
@@ -534,97 +606,5 @@ public abstract class WLoginSYS {
 			// TODO: handle exception
 		}
 		return;
-	}
-
-	public static void initTable() {// 初始化表
-		BukkitRunnable bukkitRunnable = new BukkitRunnable() {
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				Statement statement;
-				try {
-					statement = WLogin.main.getDatabase().getConnection().createStatement();
-					String sql = "CREATE TABLE IF NOT EXISTS `playerpassword`(" + "`playername` VARCHAR(40) NOT NULL,"
-							+ "`password` VARCHAR(40) NOT NULL," + "`ip` bigint(20) NOT NULL,"
-							+ "PRIMARY KEY ( `playername` )" + ")ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-					statement.executeUpdate(sql);
-					statement.close();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					WLogin.main.getLogger().warning("创建 playerpassword 失败");
-				}
-				try {
-					statement = WLogin.main.getDatabase().getConnection().createStatement();
-					String sql = "CREATE TABLE IF NOT EXISTS `playerlogindata`(" + "`playername` VARCHAR(40) NOT NULL,"
-							+ "`logintime` TIMESTAMP NOT NULL," + "`loginable` TINYINT(1) NOT NULL,"
-							+ "`ip` bigint(20) NOT NULL,"
-							+ "FOREIGN KEY (playername) REFERENCES playerpassword(playername)"
-							+ ")ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-					statement.executeUpdate(sql);
-					statement.close();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					WLogin.main.getLogger().warning("创建 playerlogindata 失败");
-				}
-				try {
-					statement = WLogin.main.getDatabase().getConnection().createStatement();
-					String sql = "CREATE TABLE IF NOT EXISTS `playerplayingtime`("
-							+ "`playername` VARCHAR(40) NOT NULL," + "`min` INT NOT NULL,"
-							+ "FOREIGN KEY (playername) REFERENCES playerpassword(playername)," + "UNIQUE (playername)"
-							+ ")ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-					statement.executeUpdate(sql);
-					statement.close();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					WLogin.main.getLogger().warning("创建 playerplayingtime 失败");
-				}
-				try {
-					statement = WLogin.main.getDatabase().getConnection().createStatement();
-					String sql = "CREATE TABLE IF NOT EXISTS `playeroldpassword`("
-							+ "`sendername` VARCHAR(40) NOT NULL," + "`playername` VARCHAR(40) NOT NULL,"
-							+ "`time` TIMESTAMP NOT NULL," + "`oldpassword` VARCHAR(40) NOT NULL," + "`ip` bigint(20),"
-							+ "FOREIGN KEY (playername) REFERENCES playerpassword(playername)"
-							+ ")ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-					statement.executeUpdate(sql);
-					statement.close();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					WLogin.main.getLogger().warning("创建 playeroldpassword 失败");
-				}
-				try {
-					statement = WLogin.main.getDatabase().getConnection().createStatement();
-					String sql = "CREATE TABLE IF NOT EXISTS `playeristeenagers`("
-							+ "`playername` VARCHAR(40) NOT NULL,"
-							+ "FOREIGN KEY (playername) REFERENCES playerpassword(playername),"
-							+ "UNIQUE ( `playername` )" + ")ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-					statement.executeUpdate(sql);
-					statement.close();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					WLogin.main.getLogger().warning("创建 playeristeenagers 失败");
-				}
-				try {
-					statement = WLogin.main.getDatabase().getConnection().createStatement();
-					String sql = "CREATE TABLE IF NOT EXISTS `banplayerdata`(" + "`playername` VARCHAR(40) NOT NULL,"
-							+ "`reason` VARCHAR(300) NOT NULL," + "`time` TIMESTAMP NOT NULL," + "`time_long` INT,"
-							+ "FOREIGN KEY (playername) REFERENCES playerpassword(playername)"
-							+ ")ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-					statement.executeUpdate(sql);
-					statement.close();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					WLogin.main.getLogger().warning("创建 banplayerdata 失败");
-				}
-				WLogin.main.getLogger().info("表初始化完成");
-			}
-		};
-
-		bukkitRunnable.runTaskAsynchronously(WLogin.main);
 	}
 }
