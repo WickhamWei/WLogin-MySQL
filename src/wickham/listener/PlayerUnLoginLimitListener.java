@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -25,6 +26,25 @@ public class PlayerUnLoginLimitListener implements Listener{
 
 	public static void noLoginMsg(Player player) {// 未登录的信息
 		WLogin.sendMsg(player, ChatColor.RED + "你还没登陆， 输入/login <密码> 来登陆");
+	}
+	
+	@EventHandler
+	public void stop(PlayerCommandPreprocessEvent event) {// 不让未登录的玩家使用任何除join以外的指令
+		if (WLoginSYS.isLogin(event.getPlayer().getName())) {
+			return;// 不管
+		} else {
+			String message = event.getMessage();
+			String[] messageArray = message.split(" ");
+			if (messageArray[0].equalsIgnoreCase("/login")||messageArray[0].equalsIgnoreCase("/register")) {// 检查使用的join命令是否合法，分割字符串
+				return;
+			} else if (!WLoginSYS.isRegister(event.getPlayer().getName())) {
+				noRegisterMsg(event.getPlayer());
+				event.setCancelled(true);
+			} else {
+				noLoginMsg(event.getPlayer());
+				event.setCancelled(true);
+			}
+		}
 	}
 	
 	@EventHandler

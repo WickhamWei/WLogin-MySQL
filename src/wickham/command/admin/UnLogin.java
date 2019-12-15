@@ -26,7 +26,7 @@ public class UnLogin implements CommandExecutor {
 							// TODO 自动生成的方法存根
 							if (WLoginSYS.isRegister(targePlayerNameString)) {
 								if (WLoginSYS.isLogin(targePlayerNameString)) {
-									WLoginSYS.unLogin(player, WLogin.main.getServer().getPlayer(targePlayerNameString));
+									WLoginSYS.unLogin(WLogin.main.getServer().getPlayer(targePlayerNameString));
 
 								} else {
 									player.sendMessage(targePlayerNameString + " 还没登录");
@@ -50,7 +50,7 @@ public class UnLogin implements CommandExecutor {
 						// TODO 自动生成的方法存根
 						if (WLoginSYS.isRegister(targePlayerNameString)) {
 							if (WLoginSYS.isLogin(targePlayerNameString)) {
-								WLoginSYS.unLogin(sender, WLogin.main.getServer().getPlayer(targePlayerNameString));
+								WLoginSYS.unLogin(WLogin.main.getServer().getPlayer(targePlayerNameString));
 							} else {
 								sender.sendMessage(targePlayerNameString + " 还没登录");
 							}

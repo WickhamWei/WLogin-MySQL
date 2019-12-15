@@ -60,6 +60,19 @@ public abstract class AllTables {
 				}
 				try {
 					statement = WLogin.main.getDatabase().getConnection().createStatement();
+					String sql = "CREATE TABLE IF NOT EXISTS `playerdailyplaytime`("
+							+ "`playername` VARCHAR(40) NOT NULL," + "`date` DATE NOT NULL," + "`min` INT NOT NULL,"
+							+ "FOREIGN KEY (playername) REFERENCES playerpassword(playername))ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+					statement.executeUpdate(sql);
+					statement.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					normal = false;
+					e.printStackTrace();
+					WLogin.main.getLogger().warning("创建 playerdailyplaytime 失败");
+				}
+				try {
+					statement = WLogin.main.getDatabase().getConnection().createStatement();
 					String sql = "CREATE TABLE IF NOT EXISTS `playeroldpassword`("
 							+ "`sendername` VARCHAR(40) NOT NULL," + "`playername` VARCHAR(40) NOT NULL,"
 							+ "`time` TIMESTAMP NOT NULL," + "`oldpassword` VARCHAR(40) NOT NULL," + "`ip` bigint(20),"

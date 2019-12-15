@@ -28,9 +28,15 @@ public class PlayingTime implements CommandExecutor {
 						player.sendMessage(ChatColor.GREEN + playerNameString + ChatColor.YELLOW + " 本次游戏了 "
 								+ ChatColor.GREEN + nowTheHour + ChatColor.YELLOW + " 小时 " + ChatColor.GREEN + nowTheMin
 								+ ChatColor.YELLOW + " 分钟");
-						nowMin = nowMin + WLoginSYS.getPlayerDataBasePlayingTime(playerNameString);
-						nowTheHour = nowMin / 60;
-						nowTheMin = nowMin % 60;
+						int todayMin = nowMin + WLoginSYS.getPlayerTodayPlayingTime(playerNameString);
+						nowTheHour = todayMin / 60;
+						nowTheMin = todayMin % 60;
+						player.sendMessage(ChatColor.GREEN + playerNameString + ChatColor.YELLOW + " 今天游戏了 "
+								+ ChatColor.GREEN + nowTheHour + ChatColor.YELLOW + " 小时 " + ChatColor.GREEN + nowTheMin
+								+ ChatColor.YELLOW + " 分钟");
+						int historyMin = nowMin + WLoginSYS.getPlayerDataBasePlayingTime(playerNameString);
+						nowTheHour = historyMin / 60;
+						nowTheMin = historyMin % 60;
 						player.sendMessage(ChatColor.GREEN + playerNameString + ChatColor.YELLOW + " 总共游戏了 "
 								+ ChatColor.GREEN + nowTheHour + ChatColor.YELLOW + " 小时 " + ChatColor.GREEN + nowTheMin
 								+ ChatColor.YELLOW + " 分钟");

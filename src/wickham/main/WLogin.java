@@ -7,7 +7,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import wickham.command.admin.DeTeenagers;
+import wickham.command.admin.IsTeenagers;
 import wickham.command.admin.PasswordChangeHistory;
+import wickham.command.admin.Teenagers;
 import wickham.command.admin.UnLogin;
 import wickham.command.normal.LoginData;
 import wickham.command.normal.LoginFailData;
@@ -58,6 +61,9 @@ public class WLogin extends JavaPlugin {
 		main.getCommand("loginfaildata").setExecutor(new LoginFailData());
 		main.getCommand("playingtime").setExecutor(new PlayingTime());
 		main.getCommand("passwordchangehistory").setExecutor(new PasswordChangeHistory());
+		main.getCommand("teenagers").setExecutor(new Teenagers());
+		main.getCommand("isteenagers").setExecutor(new IsTeenagers());
+		main.getCommand("deteenagers").setExecutor(new DeTeenagers());
 	}
 	
 	private void PreparingListener() {// 载入监听器

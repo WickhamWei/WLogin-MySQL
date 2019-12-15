@@ -19,10 +19,13 @@ public class PlayerLoginListener implements Listener {
 		WLogin.main.getLogger().info(player.getName() + " 加入了游戏");
 		player.sendMessage(ChatColor.YELLOW + "在线的玩家有 " + ChatColor.GREEN
 				+ WLogin.main.getServer().getOnlinePlayers().size() + ChatColor.YELLOW + " 个");
-		int allMin=WLoginSYS.getPlayerDataBasePlayingTime(player.getName());
-		int hour=allMin/60;
-		int min=allMin%60;
-		player.sendMessage(ChatColor.YELLOW + "您已游戏了 "+ChatColor.GREEN+hour+ChatColor.YELLOW+" 小时 "+ChatColor.GREEN+min+ChatColor.YELLOW+" 分钟");
+		int todayMin=WLoginSYS.getPlayerTodayPlayingTime(player.getName());
+		int hour=todayMin/60;
+		int min=todayMin%60;
+		player.sendMessage(ChatColor.YELLOW + "您今天游戏了 "+ChatColor.GREEN+hour+ChatColor.YELLOW+" 小时 "+ChatColor.GREEN+min+ChatColor.YELLOW+" 分钟");
+		if(hour>=3) {
+			player.sendMessage(ChatColor.YELLOW+"请注意休息");
+		}
 		BukkitRunnable bukkitRunnable=new BukkitRunnable() {
 			
 			@Override

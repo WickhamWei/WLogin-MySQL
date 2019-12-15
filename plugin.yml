@@ -30,3 +30,12 @@ commands:
    passwordchangehistory:
       description: 查询密码修改记录
       usage: /passwordchangehistory <playername> [page]
+   teenagers:
+      description: 设置防沉迷
+      usage: /teenagers <playername>
+   isteenagers:
+      description: 是否是防沉迷
+      usage: /isteenagers <playername>
+   deteenagers:
+      description: 取消防沉迷
+      usage: /deteenagers <playername>
