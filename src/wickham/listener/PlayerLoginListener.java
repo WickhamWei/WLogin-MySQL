@@ -23,6 +23,10 @@ public class PlayerLoginListener implements Listener {
 		int hour=todayMin/60;
 		int min=todayMin%60;
 		player.sendMessage(ChatColor.YELLOW + "您今天游戏了 "+ChatColor.GREEN+hour+ChatColor.YELLOW+" 小时 "+ChatColor.GREEN+min+ChatColor.YELLOW+" 分钟");
+		if(!WLoginSYS.teenageersChecker(player)) {
+			player.kickPlayer(WLogin.kickTeenagersMsg());
+			return;
+		}
 		if(hour>=3) {
 			player.sendMessage(ChatColor.YELLOW+"请注意休息");
 		}

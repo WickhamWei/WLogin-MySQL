@@ -30,5 +30,6 @@ public class ServerLoadEventListener implements Listener {
 					+ updateChecker.getNewestVersionPTimeString());
 			WLogin.main.getLogger().info("请及时更新");
 		}
+		TeenagersListener.enableTeenagersListener();
 	}
 }

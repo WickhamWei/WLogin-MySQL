@@ -91,6 +91,10 @@ public class WLogin extends JavaPlugin {
 		return ChatColor.RED+"玩家不在线、不存在或者数据不存在";
 	}
 	
+	public static String kickTeenagersMsg() {
+		return "您已游玩超过三个小时，请注意休息。如有疑问，请联系管理员";
+	}
+	
 	public static String playerEntityOnlyMsg() {
 		return ChatColor.RED+"只有玩家实体才可执行此命令";
 	}

@@ -474,6 +474,33 @@ public abstract class WLoginSYS {
 		}
 		return teenagersCount;
 	}
+	
+	public static boolean teenageersChecker(Player player) {//防沉迷验证是否通过 
+		String playerNameString=player.getName();
+		int playerTodayPlayingTime=0;
+		if(WLoginSYS.isLogin(player)) {
+			playerTodayPlayingTime=playerTodayPlayingTime+WLoginSYS.getPlayerNowPlayingTime(player);
+		}
+		playerTodayPlayingTime=playerTodayPlayingTime+WLoginSYS.getPlayerTodayPlayingTime(playerNameString);
+		if(isTeenagers(playerNameString)) {
+			if(playerTodayPlayingTime>=60*3) {
+				return false;
+			}else {
+				if(playerTodayPlayingTime>=60*2&&playerTodayPlayingTime<=60*2+5) {
+					player.sendMessage(ChatColor.YELLOW+"您的游戏时间只剩"+(60*3-playerTodayPlayingTime)+"分钟");
+				}
+				if(playerTodayPlayingTime>=60*2+30&&playerTodayPlayingTime<=60*2+35) {
+					player.sendMessage(ChatColor.YELLOW+"您的游戏时间只剩"+(60*3-playerTodayPlayingTime)+"分钟");
+				}
+				if(playerTodayPlayingTime>=60*2+50) {
+					player.sendMessage(ChatColor.RED+"您的游戏时间只剩"+(60*3-playerTodayPlayingTime)+"分钟，请注意保护随身携带的物品，以防丢失");
+				}
+				return true;
+			}
+		}else {
+			return true;
+		}
+	}
 
 	public static void unLogin(Player player) {// 使玩家退出登录
 		boolean done = true;
