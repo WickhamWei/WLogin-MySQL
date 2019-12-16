@@ -19,7 +19,6 @@ public class Login implements CommandExecutor {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			if (args.length == 1) {
-
 				if (WLoginSYS.isRegister(player.getName())) {
 					if (!WLoginSYS.isLogin(player)) {
 						if (WLoginSYS.checkPassword(player, args[0])) {
