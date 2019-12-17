@@ -15,16 +15,6 @@ public class PlayerLoginListener implements Listener {
 	@EventHandler
 	public void listen(WPlayerLoginEvent event) {// 玩家加入
 		Player player = event.getPlayer();
-		if(!WLoginSYS.teenageersChecker(player)) {
-			player.kickPlayer(WLogin.kickTeenagersMsg());
-			event.setCancelled(true);
-			return;
-		}
-		if(WLoginSYS.isBanning(player.getName())) {
-			player.kickPlayer("您已被封禁，封禁理由是 "+WLoginSYS.getMaxBanTimeReason(player.getName())+" 封禁时间剩余 "+WLoginSYS.getMaxBanTimeMin(player.getName())+" 分钟");
-			event.setCancelled(true);
-			return;
-		}
 		WLogin.main.getServer().broadcastMessage(ChatColor.YELLOW + player.getName() + ChatColor.GREEN + " 加入了游戏");
 		WLogin.main.getLogger().info(player.getName() + " 加入了游戏");
 		player.sendMessage(ChatColor.YELLOW + "在线的玩家有 " + ChatColor.GREEN

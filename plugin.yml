@@ -3,7 +3,7 @@ main: wickham.main.WLogin
 load: STARTUP
 authors: [Wickham, HomeRich]
 website: https://github.com/WickhamWei/WLogin
-version: 1.0.1
+version: 1.0.2
 api-version: 1.14
 commands:
    login:

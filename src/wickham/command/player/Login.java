@@ -7,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import wickham.main.WLogin;
 import wickham.main.login.WLoginSYS;
@@ -24,11 +25,19 @@ public class Login implements CommandExecutor {
 						if (WLoginSYS.checkPassword(player, args[0])) {
 							WPlayerLoginEvent wPlayerLoginEvent = new WPlayerLoginEvent(player);
 							Bukkit.getPluginManager().callEvent(wPlayerLoginEvent);
-							if (!wPlayerLoginEvent.isCancelled()) {
-								WLoginSYS.login(player);
-								WLogin.sendMsg(player, ChatColor.GREEN + "登录成功");
-								player.setGameMode(GameMode.SURVIVAL);
-							}
+							BukkitRunnable bukkitRunnable=new BukkitRunnable() {
+								
+								@Override
+								public void run() {
+									// TODO 自动生成的方法存根
+									if (!wPlayerLoginEvent.isCancelled()) {
+										WLoginSYS.login(player);
+										WLogin.sendMsg(player, ChatColor.GREEN + "登录成功");
+										player.setGameMode(GameMode.SURVIVAL);
+									}
+								}
+							};
+							bukkitRunnable.runTaskLater(WLogin.main, 20);
 						} else {
 							WLoginSYS.loginFail(player);
 							WLogin.sendMsg(player, ChatColor.RED + "密码错误");

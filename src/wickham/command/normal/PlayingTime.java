@@ -45,22 +45,40 @@ public class PlayingTime implements CommandExecutor {
 				bukkitRunnable.runTaskAsynchronously(WLogin.main);
 				return true;
 			} else if (args.length == 1 && player.isOp()) {
-				String playerNameString = args[0];
+				String targePlayerNameString = args[0];
 				BukkitRunnable bukkitRunnable = new BukkitRunnable() {
 
 					@Override
 					public void run() {
+						Player targePlayer=WLogin.main.getServer().getPlayer(targePlayerNameString);
 						// TODO 自动生成的方法存根
-						int nowMin = WLoginSYS.getPlayerNowPlayingTime(player);
+						int nowMin =0;
+						if(!(targePlayer==null)) {
+							nowMin = WLoginSYS.getPlayerNowPlayingTime(targePlayer);
+						}
 						int nowTheHour = nowMin / 60;
 						int nowTheMin = nowMin % 60;
-						player.sendMessage(ChatColor.GREEN + playerNameString + ChatColor.YELLOW + " 本次游戏了 "
-								+ ChatColor.GREEN + nowTheHour + ChatColor.YELLOW + " 小时 " + ChatColor.GREEN + nowTheMin
-								+ ChatColor.YELLOW + " 分钟");
-						nowMin = nowMin + WLoginSYS.getPlayerDataBasePlayingTime(playerNameString);
-						nowTheHour = nowMin / 60;
-						nowTheMin = nowMin % 60;
-						player.sendMessage(ChatColor.GREEN + playerNameString + ChatColor.YELLOW + " 总共游戏了 "
+						if (nowMin==0) {
+							player.sendMessage(ChatColor.GREEN + targePlayerNameString + ChatColor.YELLOW + " 现在不在线 ");
+						}else {
+							player.sendMessage(ChatColor.GREEN + targePlayerNameString + ChatColor.YELLOW + " 本次游戏了 "
+									+ ChatColor.GREEN + nowTheHour + ChatColor.YELLOW + " 小时 " + ChatColor.GREEN + nowTheMin
+									+ ChatColor.YELLOW + " 分钟");
+						}
+						int todayMin = nowMin + WLoginSYS.getPlayerTodayPlayingTime(targePlayerNameString);
+						nowTheHour = todayMin / 60;
+						nowTheMin = todayMin % 60;
+						if (todayMin==0) {
+							player.sendMessage(ChatColor.GREEN + targePlayerNameString + ChatColor.YELLOW + " 今天没上过线 ");
+						}else {
+							player.sendMessage(ChatColor.GREEN + targePlayerNameString + ChatColor.YELLOW + " 今天游戏了 "
+									+ ChatColor.GREEN + nowTheHour + ChatColor.YELLOW + " 小时 " + ChatColor.GREEN + nowTheMin
+									+ ChatColor.YELLOW + " 分钟");
+						}
+						int historyMin = nowMin + WLoginSYS.getPlayerDataBasePlayingTime(targePlayerNameString);
+						nowTheHour = historyMin / 60;
+						nowTheMin = historyMin % 60;
+						player.sendMessage(ChatColor.GREEN + targePlayerNameString + ChatColor.YELLOW + " 总共游戏了 "
 								+ ChatColor.GREEN + nowTheHour + ChatColor.YELLOW + " 小时 " + ChatColor.GREEN + nowTheMin
 								+ ChatColor.YELLOW + " 分钟");
 					}
