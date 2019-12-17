@@ -36,7 +36,9 @@
 *  `/wban <playername> <banTimeMin> <reason>`封禁玩家
 *  `/wdean <playername>`取消玩家现有的封禁
 *  `/wbandata <playername> [page]`查询玩家的封禁记录
-*  `/wisban <playername>`玩家是否被封禁  
+*  `/wisban <playername>`玩家是否被封禁 
+*  **封禁时间不是叠加，而是分开且同时计算** 
+*  **取消封禁将删除涉及正在封禁的所有记录，只保留已服刑完毕的记录** 
 
 ### 下载地址  
 

@@ -1,5 +1,6 @@
 package wickham.main.login;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -448,6 +449,9 @@ public abstract class WLoginSYS {
 			int timeLengthMin) {
 		Statement statement = null;
 		String senderNameString = null;
+		if (timeLengthMin<=0) {
+			timeLengthMin=1;
+		}
 		try {
 			if (sender instanceof Player) {
 				Player player = (Player) sender;
@@ -505,8 +509,11 @@ public abstract class WLoginSYS {
 				if (getTimeDifferenceMinutes(getNowTimestamp(), data.getTime()) >= data.getTimelong()) {// 服刑完毕
 					continue;
 				} else {
-					statement.executeUpdate("DELETE FROM banplayerdata where playername ='" + targePlayerNameString
-							+ "' and time = " + data.getTime());
+					String sqlString=("DELETE FROM banplayerdata where playername ='" + targePlayerNameString
+							+ "' and time = ?");
+					PreparedStatement preparedStatement=WLogin.main.getDatabase().getConnection().prepareStatement(sqlString);
+					preparedStatement.setTimestamp(1, data.getTime());
+					preparedStatement.execute();
 					tempCount++;
 				}
 			}
@@ -572,7 +579,7 @@ public abstract class WLoginSYS {
 					tempCount++;
 				}
 			}
-			if (tempCount >= 0) {
+			if (tempCount > 0) {
 				resultNum.close();
 				resultData.close();
 				statement.close();
@@ -799,6 +806,9 @@ public abstract class WLoginSYS {
 	}
 
 	public static boolean teenageersChecker(Player player) {// 防沉迷验证是否通过
+		if(!player.isOnline()) {
+			return true;
+		}
 		String playerNameString = player.getName();
 		int playerTodayPlayingTime = 0;
 		if (WLoginSYS.isLogin(player)) {
@@ -806,7 +816,7 @@ public abstract class WLoginSYS {
 		}
 		playerTodayPlayingTime = playerTodayPlayingTime + WLoginSYS.getPlayerTodayPlayingTime(playerNameString);
 		if (isTeenagers(playerNameString)) {
-			if (playerTodayPlayingTime >= 60 * 3) {
+			if (playerTodayPlayingTime >= 60*3) {
 				return false;
 			} else {
 				if (playerTodayPlayingTime >= 60 * 2 && playerTodayPlayingTime <= 60 * 2 + 5) {
