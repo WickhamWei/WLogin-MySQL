@@ -39,3 +39,15 @@ commands:
    deteenagers:
       description: 取消防沉迷
       usage: /deteenagers <playername>
+   wban:
+      description: 封禁玩家
+      usage: /wban <playername> <timeMin> <reason>
+   wdeban:
+      description: 取消玩家的当前所有封禁
+      usage: /wdeban <playername>
+   wbandata:
+      description: 获得玩家的封禁信息
+      usage: /wbandata <playername> [page]
+   wisban:
+      description: 玩家是否被封禁
+      usage: /wisban <playername>

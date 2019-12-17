@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -19,7 +20,7 @@ import wickham.main.mysql.tables.*;
 public abstract class WLoginSYS {
 
 	private static HashMap<String, Timestamp> playerLoginList = new HashMap<String, Timestamp>(); // 存放登录的玩家名字和登录的时间戳
-	private static HashSet<String> opLoginList= new HashSet<String>();
+	private static HashSet<String> opLoginList = new HashSet<String>();
 
 	public static boolean isLogin(String playerNameString) { // 判断玩家是否登录
 		return playerLoginList.containsKey(playerNameString);
@@ -78,13 +79,14 @@ public abstract class WLoginSYS {
 			return false;
 		}
 	}
+
 	public static void checkFailLoginData(Player senderPlayer, String targePlayerNameString, int page) {
 		Statement statement;
 		LinkedHashSet<PlayerLoginData> allDatas = new LinkedHashSet<PlayerLoginData>();
 		try {
-			statement=WLogin.main.getDatabase().getConnection().createStatement();
-			ResultSet resultNum = statement.executeQuery(
-					"SELECT count(*) FROM playerlogindata WHERE playername = '" + targePlayerNameString + "' and loginable = 0");
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			ResultSet resultNum = statement.executeQuery("SELECT count(*) FROM playerlogindata WHERE playername = '"
+					+ targePlayerNameString + "' and loginable = 0");
 			int dataLength = 0;
 			while (resultNum.next()) {
 				dataLength = resultNum.getInt(1);// 获取数据长度
@@ -98,33 +100,37 @@ public abstract class WLoginSYS {
 			if (page > (int) Math.ceil((float) dataLength / 5)) {// 使页数不超过最大值
 				page = (int) Math.ceil((float) dataLength / 5);
 			}
-			int firstDataNum=(page-1)*5;
+			if (page <= 0) {// 使页数不超过最小值
+				page = 1;
+			}
+			int firstDataNum = (page - 1) * 5;
 			ResultSet resultData = statement
 					.executeQuery("SELECT logintime,loginable,inet_ntoa(ip) FROM playerlogindata WHERE playername = '"
-							+ targePlayerNameString + "' and loginable = 0" + " limit "+firstDataNum+",5;");
-			while (resultData.next()) {//获取数据
+							+ targePlayerNameString + "' and loginable = 0" + " limit " + firstDataNum + ",5;");
+			while (resultData.next()) {// 获取数据
 				PlayerLoginData playerLoginData = new PlayerLoginData();
 				playerLoginData.setLoginTime(resultData.getTimestamp(1));
 				playerLoginData.setLoginable(resultData.getBoolean(2));
 				playerLoginData.setIpString(resultData.getString(3));
 				allDatas.add(playerLoginData);
 			}
-			senderPlayer.sendMessage(ChatColor.YELLOW + "---玩家 " + ChatColor.GREEN + targePlayerNameString
-					+ ChatColor.RED + " 登录失败数据"+ChatColor.YELLOW+" - 第 " + ChatColor.GREEN + page + ChatColor.YELLOW + " 页 - 总共 "
-					+ ChatColor.GREEN + (int) Math.ceil((float) dataLength / 5) + ChatColor.YELLOW + " 页---");
+			senderPlayer.sendMessage(
+					ChatColor.YELLOW + "---玩家 " + ChatColor.GREEN + targePlayerNameString + ChatColor.RED + " 登录失败数据"
+							+ ChatColor.YELLOW + " - 第 " + ChatColor.GREEN + page + ChatColor.YELLOW + " 页 - 总共 "
+							+ ChatColor.GREEN + (int) Math.ceil((float) dataLength / 5) + ChatColor.YELLOW + " 页---");
 			int tempNumber = 1;
-			for (PlayerLoginData data : allDatas) {//发送数据给玩家
+			for (PlayerLoginData data : allDatas) {// 发送数据给玩家
 				senderPlayer.sendMessage(
 						ChatColor.YELLOW + "-第 " + ChatColor.GREEN + tempNumber + ChatColor.YELLOW + " 条数据-");
-				senderPlayer.sendMessage(ChatColor.YELLOW + "尝试登录的时间 " + ChatColor.GREEN
-						+ data.getLoginTime().toString());
+				senderPlayer
+						.sendMessage(ChatColor.YELLOW + "尝试登录的时间 " + ChatColor.GREEN + data.getLoginTime().toString());
 				senderPlayer.sendMessage(ChatColor.YELLOW + "尝试登录的IP地址 " + ChatColor.GREEN + data.getIpString());
 				tempNumber++;
 			}
 			resultNum.close();
 			resultData.close();
 			statement.close();
-			
+
 		} catch (SQLException e) {
 			// TODO: handle exception
 		}
@@ -150,11 +156,14 @@ public abstract class WLoginSYS {
 			if (page > (int) Math.ceil((float) dataLength / 5)) {// 使页数不超过最大值
 				page = (int) Math.ceil((float) dataLength / 5);
 			}
-			int firstDataNum=(page-1)*5;
+			if (page <= 0) {// 使页数不超过最小值
+				page = 1;
+			}
+			int firstDataNum = (page - 1) * 5;
 			ResultSet resultData = statement
 					.executeQuery("SELECT logintime,loginable,inet_ntoa(ip) FROM playerlogindata WHERE playername = '"
-							+ targePlayerNameString + "'" + " limit "+firstDataNum+",5;");
-			while (resultData.next()) {//获取数据
+							+ targePlayerNameString + "'" + " limit " + firstDataNum + ",5;");
+			while (resultData.next()) {// 获取数据
 				PlayerLoginData playerLoginData = new PlayerLoginData();
 				playerLoginData.setLoginTime(resultData.getTimestamp(1));
 				playerLoginData.setLoginable(resultData.getBoolean(2));
@@ -165,7 +174,7 @@ public abstract class WLoginSYS {
 					+ ChatColor.YELLOW + " 登录数据 - 第 " + ChatColor.GREEN + page + ChatColor.YELLOW + " 页 - 总共 "
 					+ ChatColor.GREEN + (int) Math.ceil((float) dataLength / 5) + ChatColor.YELLOW + " 页---");
 			int tempNumber = 1;
-			for (PlayerLoginData data : allDatas) {//发送数据给玩家
+			for (PlayerLoginData data : allDatas) {// 发送数据给玩家
 				senderPlayer.sendMessage(
 						ChatColor.YELLOW + "-第 " + ChatColor.GREEN + tempNumber + ChatColor.YELLOW + " 条数据-");
 				senderPlayer.sendMessage(ChatColor.YELLOW + "尝试登录的时间 " + ChatColor.GREEN
@@ -182,7 +191,7 @@ public abstract class WLoginSYS {
 			// TODO: handle exception
 		}
 	}
-	
+
 	public static void checkOldPasswordData(Player senderPlayer, String targePlayerNameString, int page) {
 		Statement statement;
 		LinkedHashSet<PlayerOldPassword> allDatas = new LinkedHashSet<PlayerOldPassword>();
@@ -203,12 +212,15 @@ public abstract class WLoginSYS {
 			if (page > (int) Math.ceil((float) dataLength / 5)) {// 使页数不超过最大值
 				page = (int) Math.ceil((float) dataLength / 5);
 			}
-			int firstDataNum=(page-1)*5;
-			ResultSet resultData = statement
-					.executeQuery("SELECT sendername,playername,time,oldpassword,inet_ntoa(ip) FROM playeroldpassword WHERE playername = '"
-							+ targePlayerNameString + "'" + " limit "+firstDataNum+",5;");
-			while (resultData.next()) {//获取数据
-				PlayerOldPassword playerOldPassword=new PlayerOldPassword();
+			if (page <= 0) {// 使页数不超过最小值
+				page = 1;
+			}
+			int firstDataNum = (page - 1) * 5;
+			ResultSet resultData = statement.executeQuery(
+					"SELECT sendername,playername,time,oldpassword,inet_ntoa(ip) FROM playeroldpassword WHERE playername = '"
+							+ targePlayerNameString + "'" + " limit " + firstDataNum + ",5;");
+			while (resultData.next()) {// 获取数据
+				PlayerOldPassword playerOldPassword = new PlayerOldPassword();
 				playerOldPassword.setSenderNameString(resultData.getString(1));
 				playerOldPassword.setPlayerNameString(resultData.getString(2));
 				playerOldPassword.setTime(resultData.getTimestamp(3));
@@ -220,12 +232,11 @@ public abstract class WLoginSYS {
 					+ ChatColor.YELLOW + " 密码修改数据 - 第 " + ChatColor.GREEN + page + ChatColor.YELLOW + " 页 - 总共 "
 					+ ChatColor.GREEN + (int) Math.ceil((float) dataLength / 5) + ChatColor.YELLOW + " 页---");
 			int tempNumber = 1;
-			for (PlayerOldPassword data : allDatas) {//发送数据给玩家
+			for (PlayerOldPassword data : allDatas) {// 发送数据给玩家
 				senderPlayer.sendMessage(
 						ChatColor.YELLOW + "-第 " + ChatColor.GREEN + tempNumber + ChatColor.YELLOW + " 条数据-");
-				senderPlayer.sendMessage(ChatColor.YELLOW + "修改密码的时间 " + ChatColor.GREEN
-						+ data.getTime().toString() + ChatColor.YELLOW + " 密码修改者 " + ChatColor.GREEN
-						+ data.getSenderNameString());
+				senderPlayer.sendMessage(ChatColor.YELLOW + "修改密码的时间 " + ChatColor.GREEN + data.getTime().toString()
+						+ ChatColor.YELLOW + " 密码修改者 " + ChatColor.GREEN + data.getSenderNameString());
 				senderPlayer.sendMessage(ChatColor.YELLOW + "修改者的IP地址 " + ChatColor.GREEN + data.getIpString());
 				tempNumber++;
 			}
@@ -298,7 +309,7 @@ public abstract class WLoginSYS {
 				}
 				if (done) {
 					playerLoginList.put(playerNameString, getNowTimestamp());
-					if(player.isOp()) {
+					if (player.isOp()) {
 						opLoginList.add(playerNameString);
 					}
 				}
@@ -339,25 +350,25 @@ public abstract class WLoginSYS {
 			unLogin(WLogin.main.getServer().getPlayer(playerNameString));
 		}
 	}
-	
+
 	public static int getPlayerNowPlayingTime(Player targePlayer) {// 获得本次游戏的时间
-		String targePlayerNameString=targePlayer.getName();
-		Timestamp loginTimestamp=playerLoginList.get(targePlayerNameString);
-		if(loginTimestamp==null) {
+		String targePlayerNameString = targePlayer.getName();
+		Timestamp loginTimestamp = playerLoginList.get(targePlayerNameString);
+		if (loginTimestamp == null) {
 			return 0;
 		}
 		return getTimeDifferenceMinutes(getNowTimestamp(), loginTimestamp);
 	}
-	
+
 	public static int getPlayerDataBasePlayingTime(String targePlayerNameString) {// 获得数据库存储的游戏时间
 		Statement statement;
-		int playerPlayingTimeInDatabase=0;
+		int playerPlayingTimeInDatabase = 0;
 		try {
-			statement=WLogin.main.getDatabase().getConnection().createStatement();
-			ResultSet result = statement
-					.executeQuery("SELECT * FROM playerplayingtime WHERE playername = '" + targePlayerNameString + "';");
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			ResultSet result = statement.executeQuery(
+					"SELECT * FROM playerplayingtime WHERE playername = '" + targePlayerNameString + "';");
 			while (result.next()) {
-				playerPlayingTimeInDatabase=result.getInt(2);
+				playerPlayingTimeInDatabase = result.getInt(2);
 			}
 			result.close();
 			statement.close();
@@ -367,16 +378,16 @@ public abstract class WLoginSYS {
 		}
 		return playerPlayingTimeInDatabase;
 	}
-	
+
 	public static int getPlayerTodayPlayingTime(String targePlayerNameString) {// 获得数据库存储的今日游戏时间
 		Statement statement;
-		int playerTodayPlayingTimeInDatabase=0;
+		int playerTodayPlayingTimeInDatabase = 0;
 		try {
-			statement=WLogin.main.getDatabase().getConnection().createStatement();
-			ResultSet result = statement.executeQuery(
-					"SELECT * FROM playerdailyplaytime WHERE playername = '" + targePlayerNameString + "' and date = curdate();");
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			ResultSet result = statement.executeQuery("SELECT * FROM playerdailyplaytime WHERE playername = '"
+					+ targePlayerNameString + "' and date = curdate();");
 			while (result.next()) {
-				playerTodayPlayingTimeInDatabase=result.getInt(3);
+				playerTodayPlayingTimeInDatabase = result.getInt(3);
 			}
 			result.close();
 			statement.close();
@@ -386,22 +397,23 @@ public abstract class WLoginSYS {
 		}
 		return playerTodayPlayingTimeInDatabase;
 	}
-	
+
 	public static boolean isTeenagers(String playerNameString) {
 		Statement statement = null;
 		ResultSet result = null;
-		boolean teenagersBoolean=false;
-		String playerNameInDatabase=null;
+		boolean teenagersBoolean = false;
+		String playerNameInDatabase = null;
 		try {
-			statement=WLogin.main.getDatabase().getConnection().createStatement();
-			result= statement.executeQuery("SELECT * FROM playeristeenagers WHERE playername = '" + playerNameString + "';");
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			result = statement
+					.executeQuery("SELECT * FROM playeristeenagers WHERE playername = '" + playerNameString + "';");
 			while (result.next()) {
-				playerNameInDatabase=result.getString(1);
+				playerNameInDatabase = result.getString(1);
 			}
 		} catch (SQLException e) {
 			// TODO: handle exception
 			e.printStackTrace();
-		}finally {
+		} finally {
 			try {
 				statement.close();
 				result.close();
@@ -410,21 +422,20 @@ public abstract class WLoginSYS {
 				e.printStackTrace();
 			}
 		}
-		if(!(playerNameInDatabase==null)) {
-			teenagersBoolean=true;
+		if (!(playerNameInDatabase == null)) {
+			teenagersBoolean = true;
 		}
 		return teenagersBoolean;
 	}
-	
+
 	public static void setTeenagers(String playerNameString) {
 		Statement statement = null;
 		try {
-			if(isTeenagers(playerNameString)) {
+			if (isTeenagers(playerNameString)) {
 				return;
-			}else {
-				statement=WLogin.main.getDatabase().getConnection().createStatement();
-				statement.executeUpdate("INSERT INTO playeristeenagers(playername)VALUES('" + playerNameString
-						+ "')");
+			} else {
+				statement = WLogin.main.getDatabase().getConnection().createStatement();
+				statement.executeUpdate("INSERT INTO playeristeenagers(playername)VALUES('" + playerNameString + "')");
 				statement.close();
 			}
 		} catch (SQLException e) {
@@ -432,15 +443,328 @@ public abstract class WLoginSYS {
 			e.printStackTrace();
 		}
 	}
-	
+
+	public static void setBanData(CommandSender sender, String targePlayerNameString, String reasonString,
+			int timeLengthMin) {
+		Statement statement = null;
+		String senderNameString = null;
+		try {
+			if (sender instanceof Player) {
+				Player player = (Player) sender;
+				senderNameString = player.getName();
+			} else {
+				senderNameString = "ADMIN";
+			}
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			statement.executeUpdate(
+					"INSERT INTO banplayerdata(playername,senderplayername,reason,time,time_long)VALUES('"
+							+ targePlayerNameString + "','" + senderNameString + "','" + reasonString + "',now(),"
+							+ timeLengthMin + ")");
+			statement.close();
+		} catch (SQLException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
+
+	public static void removeBanData(CommandSender sender, String targePlayerNameString) {// 移除正在服刑的数据
+		Statement statement = null;
+		LinkedHashSet<BanPlayerData> allDatas = new LinkedHashSet<BanPlayerData>();
+		try {
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			ResultSet resultNum = statement.executeQuery(
+					"SELECT count(*) FROM banplayerdata WHERE playername = '" + targePlayerNameString + "'");
+			int dataLength = 0;
+			while (resultNum.next()) {
+				dataLength = resultNum.getInt(1);// 获取数据长度
+			}
+			if (dataLength == 0) {// 没有数据
+				resultNum.close();
+				statement.close();
+				if (sender instanceof Player) {
+					Player player = (Player) sender;
+					player.sendMessage(WLogin.unknownPlayerEntityMsg());
+				} else {
+					sender.sendMessage("未知对象或没有数据");
+				}
+				return;
+			}
+			ResultSet resultData = statement
+					.executeQuery("SELECT * FROM banplayerdata WHERE playername = '" + targePlayerNameString + "'");
+			while (resultData.next()) {// 获取数据
+				BanPlayerData banPlayerData = new BanPlayerData();
+				banPlayerData.setPlayerNameString(resultData.getString(1));
+				banPlayerData.setSenderPlayerNameString(resultData.getString(2));
+				banPlayerData.setReasonString(resultData.getString(3));
+				banPlayerData.setTime(resultData.getTimestamp(4));
+				banPlayerData.setTimelong(resultData.getInt(5));
+				allDatas.add(banPlayerData);
+			}
+			int tempCount = 0;
+			for (BanPlayerData data : allDatas) {
+				if (getTimeDifferenceMinutes(getNowTimestamp(), data.getTime()) >= data.getTimelong()) {// 服刑完毕
+					continue;
+				} else {
+					statement.executeUpdate("DELETE FROM banplayerdata where playername ='" + targePlayerNameString
+							+ "' and time = " + data.getTime());
+					tempCount++;
+				}
+			}
+			if (tempCount == 0) {// 没有数据
+				resultNum.close();
+				statement.close();
+				if (sender instanceof Player) {
+					Player player = (Player) sender;
+					player.sendMessage(WLogin.unknownPlayerEntityMsg());
+				} else {
+					sender.sendMessage("未知对象或没有数据");
+				}
+				return;
+			}
+			if (sender instanceof Player) {
+				Player player = (Player) sender;
+				player.sendMessage(
+						ChatColor.YELLOW + "删除了 " + ChatColor.GREEN + tempCount + ChatColor.YELLOW + " 条封禁中的数据，对象已解封");
+			} else {
+				sender.sendMessage("删除了 " + tempCount + " 条封禁中的数据，对象已解封");
+			}
+			resultNum.close();
+			resultData.close();
+			statement.close();
+		} catch (SQLException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
+
+	public static boolean isBanning(String targePlayerNameString) {
+		Statement statement = null;
+		LinkedHashSet<BanPlayerData> allDatas = new LinkedHashSet<BanPlayerData>();
+		try {
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			ResultSet resultNum = statement.executeQuery(
+					"SELECT count(*) FROM banplayerdata WHERE playername = '" + targePlayerNameString + "'");
+			int dataLength = 0;
+			while (resultNum.next()) {
+				dataLength = resultNum.getInt(1);// 获取数据长度
+			}
+			if (dataLength == 0) {// 没有数据
+				resultNum.close();
+				statement.close();
+				return false;
+			}
+			ResultSet resultData = statement
+					.executeQuery("SELECT * FROM banplayerdata WHERE playername = '" + targePlayerNameString + "'");
+			while (resultData.next()) {// 获取数据
+				BanPlayerData banPlayerData = new BanPlayerData();
+				banPlayerData.setPlayerNameString(resultData.getString(1));
+				banPlayerData.setSenderPlayerNameString(resultData.getString(2));
+				banPlayerData.setReasonString(resultData.getString(3));
+				banPlayerData.setTime(resultData.getTimestamp(4));
+				banPlayerData.setTimelong(resultData.getInt(5));
+				allDatas.add(banPlayerData);
+			}
+			int tempCount = 0;
+			for (BanPlayerData data : allDatas) {
+				if (getTimeDifferenceMinutes(getNowTimestamp(), data.getTime()) >= data.getTimelong()) {// 服刑完毕
+					continue;
+				} else {
+					tempCount++;
+				}
+			}
+			if (tempCount >= 0) {
+				resultNum.close();
+				resultData.close();
+				statement.close();
+				return true;
+			}
+			resultNum.close();
+			resultData.close();
+			statement.close();
+			return false;
+		} catch (SQLException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public static int getMaxBanTimeMin(String targePlayerNameString) {
+		Statement statement = null;
+		LinkedHashSet<BanPlayerData> allDatas = new LinkedHashSet<BanPlayerData>();
+		try {
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			ResultSet resultNum = statement.executeQuery(
+					"SELECT count(*) FROM banplayerdata WHERE playername = '" + targePlayerNameString + "'");
+			int dataLength = 0;
+			while (resultNum.next()) {
+				dataLength = resultNum.getInt(1);// 获取数据长度
+			}
+			if (dataLength == 0) {// 没有数据
+				resultNum.close();
+				statement.close();
+				return 0;
+			}
+			ResultSet resultData = statement
+					.executeQuery("SELECT * FROM banplayerdata WHERE playername = '" + targePlayerNameString + "'");
+			while (resultData.next()) {// 获取数据
+				BanPlayerData banPlayerData = new BanPlayerData();
+				banPlayerData.setPlayerNameString(resultData.getString(1));
+				banPlayerData.setSenderPlayerNameString(resultData.getString(2));
+				banPlayerData.setReasonString(resultData.getString(3));
+				banPlayerData.setTime(resultData.getTimestamp(4));
+				banPlayerData.setTimelong(resultData.getInt(5));
+				allDatas.add(banPlayerData);
+			}
+			int maxBanTimeMin = 0;
+			for (BanPlayerData data : allDatas) {
+				if (getTimeDifferenceMinutes(getNowTimestamp(), data.getTime()) >= data.getTimelong()) {// 服刑完毕
+					continue;
+				} else {
+					if (data.getTimelong()
+							- getTimeDifferenceMinutes(getNowTimestamp(), data.getTime()) > maxBanTimeMin) {
+						maxBanTimeMin = data.getTimelong()
+								- getTimeDifferenceMinutes(getNowTimestamp(), data.getTime());
+					}
+				}
+			}
+			resultNum.close();
+			resultData.close();
+			statement.close();
+			return maxBanTimeMin;
+		} catch (SQLException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public static String getMaxBanTimeReason(String targePlayerNameString) {
+		Statement statement = null;
+		LinkedHashSet<BanPlayerData> allDatas = new LinkedHashSet<BanPlayerData>();
+		try {
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			ResultSet resultNum = statement.executeQuery(
+					"SELECT count(*) FROM banplayerdata WHERE playername = '" + targePlayerNameString + "'");
+			int dataLength = 0;
+			while (resultNum.next()) {
+				dataLength = resultNum.getInt(1);// 获取数据长度
+			}
+			if (dataLength == 0) {// 没有数据
+				resultNum.close();
+				statement.close();
+				return null;
+			}
+			ResultSet resultData = statement
+					.executeQuery("SELECT * FROM banplayerdata WHERE playername = '" + targePlayerNameString + "'");
+			while (resultData.next()) {// 获取数据
+				BanPlayerData banPlayerData = new BanPlayerData();
+				banPlayerData.setPlayerNameString(resultData.getString(1));
+				banPlayerData.setSenderPlayerNameString(resultData.getString(2));
+				banPlayerData.setReasonString(resultData.getString(3));
+				banPlayerData.setTime(resultData.getTimestamp(4));
+				banPlayerData.setTimelong(resultData.getInt(5));
+				allDatas.add(banPlayerData);
+			}
+			int maxBanTimeMin = 0;
+			String maxBanTimeReasonString = null;
+			for (BanPlayerData data : allDatas) {
+				if (getTimeDifferenceMinutes(getNowTimestamp(), data.getTime()) >= data.getTimelong()) {// 服刑完毕
+					continue;
+				} else {
+					if (data.getTimelong()
+							- getTimeDifferenceMinutes(getNowTimestamp(), data.getTime()) > maxBanTimeMin) {
+						maxBanTimeMin = data.getTimelong()
+								- getTimeDifferenceMinutes(getNowTimestamp(), data.getTime());
+						maxBanTimeReasonString = data.getReasonString();
+					}
+				}
+			}
+			resultNum.close();
+			resultData.close();
+			statement.close();
+			return maxBanTimeReasonString;
+		} catch (SQLException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static void getBanData(Player senderPlayer, String targePlayerNameString, int page) {
+		Statement statement = null;
+		LinkedHashSet<BanPlayerData> allDatas = new LinkedHashSet<BanPlayerData>();
+		try {
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			ResultSet resultNum = statement.executeQuery(
+					"SELECT count(*) FROM banplayerdata WHERE playername = '" + targePlayerNameString + "'");
+			int dataLength = 0;
+			while (resultNum.next()) {
+				dataLength = resultNum.getInt(1);// 获取数据长度
+			}
+			if (dataLength == 0) {// 没有数据
+				resultNum.close();
+				statement.close();
+				senderPlayer.sendMessage(WLogin.unknownPlayerEntityMsg());
+				return;
+			}
+			if (page > (int) Math.ceil((float) dataLength / 2)) {// 使页数不超过最大值
+				page = (int) Math.ceil((float) dataLength / 2);
+			}
+			if (page <= 0) {// 使页数不超过最小值
+				page = 1;
+			}
+			int firstDataNum = (page - 1) * 2;
+			ResultSet resultData = statement.executeQuery("SELECT * FROM banplayerdata WHERE playername = '"
+					+ targePlayerNameString + "'" + " limit " + firstDataNum + ",2;");
+			while (resultData.next()) {// 获取数据
+				BanPlayerData banPlayerData = new BanPlayerData();
+				banPlayerData.setPlayerNameString(resultData.getString(1));
+				banPlayerData.setSenderPlayerNameString(resultData.getString(2));
+				banPlayerData.setReasonString(resultData.getString(3));
+				banPlayerData.setTime(resultData.getTimestamp(4));
+				banPlayerData.setTimelong(resultData.getInt(5));
+				allDatas.add(banPlayerData);
+			}
+			senderPlayer.sendMessage(ChatColor.YELLOW + "---玩家 " + ChatColor.GREEN + targePlayerNameString
+					+ ChatColor.YELLOW + " 封禁数据 - 第 " + ChatColor.GREEN + page + ChatColor.YELLOW + " 页 - 总共 "
+					+ ChatColor.GREEN + (int) Math.ceil((float) dataLength / 5) + ChatColor.YELLOW + " 页---");
+			int tempNumber = 1;
+			for (BanPlayerData data : allDatas) {// 发送数据给玩家
+				senderPlayer.sendMessage(
+						ChatColor.YELLOW + "-第 " + ChatColor.GREEN + tempNumber + ChatColor.YELLOW + " 条数据-");
+				senderPlayer.sendMessage(ChatColor.YELLOW + "封禁时间 " + ChatColor.GREEN + data.getTime().toString()
+						+ ChatColor.YELLOW + " 封禁者 " + ChatColor.GREEN + data.getSenderPlayerNameString());
+				int nowMin = data.getTimelong();
+				int nowTheHour = nowMin / 60;
+				int nowTheMin = nowMin % 60;
+				senderPlayer.sendMessage(ChatColor.YELLOW + "封禁时长 " + ChatColor.GREEN + nowTheHour + ChatColor.YELLOW
+						+ " 小时 " + ChatColor.GREEN + nowTheMin + ChatColor.YELLOW + " 分钟");
+				boolean endOfSentence = false;
+				if (getTimeDifferenceMinutes(getNowTimestamp(), data.getTime()) >= data.getTimelong()) {
+					endOfSentence = true;
+				}
+				senderPlayer.sendMessage(ChatColor.YELLOW + "是否服刑完毕 " + booleanToString(endOfSentence));
+				senderPlayer.sendMessage(ChatColor.YELLOW + "封禁理由 " + ChatColor.BLUE + data.getReasonString());
+				tempNumber++;
+			}
+			resultNum.close();
+			resultData.close();
+			statement.close();
+		} catch (SQLException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
+
 	public static void removeTeenagers(String playerNameString) {
-		Statement statement =null;
+		Statement statement = null;
 		try {
-			if(isTeenagers(playerNameString)) {
-				statement=WLogin.main.getDatabase().getConnection().createStatement();
-				statement.executeUpdate("DELETE FROM playeristeenagers where playername ='"+playerNameString+"'");
+			if (isTeenagers(playerNameString)) {
+				statement = WLogin.main.getDatabase().getConnection().createStatement();
+				statement.executeUpdate("DELETE FROM playeristeenagers where playername ='" + playerNameString + "'");
 				statement.close();
-			}else {
+			} else {
 				return;
 			}
 		} catch (SQLException e) {
@@ -448,22 +772,21 @@ public abstract class WLoginSYS {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static Integer getTeenagersCount() {
-		Statement statement =null;
-		ResultSet resultCount=null;
-		int teenagersCount=0;
+		Statement statement = null;
+		ResultSet resultCount = null;
+		int teenagersCount = 0;
 		try {
-			statement=WLogin.main.getDatabase().getConnection().createStatement();
-			resultCount = statement.executeQuery(
-					"SELECT count(*) FROM playeristeenagers");
+			statement = WLogin.main.getDatabase().getConnection().createStatement();
+			resultCount = statement.executeQuery("SELECT count(*) FROM playeristeenagers");
 			while (resultCount.next()) {
 				teenagersCount = resultCount.getInt(1);// 获取数据长度
 			}
 		} catch (SQLException e) {
 			// TODO: handle exception
 			e.printStackTrace();
-		}finally {
+		} finally {
 			try {
 				statement.close();
 				resultCount.close();
@@ -474,30 +797,31 @@ public abstract class WLoginSYS {
 		}
 		return teenagersCount;
 	}
-	
-	public static boolean teenageersChecker(Player player) {//防沉迷验证是否通过 
-		String playerNameString=player.getName();
-		int playerTodayPlayingTime=0;
-		if(WLoginSYS.isLogin(player)) {
-			playerTodayPlayingTime=playerTodayPlayingTime+WLoginSYS.getPlayerNowPlayingTime(player);
+
+	public static boolean teenageersChecker(Player player) {// 防沉迷验证是否通过
+		String playerNameString = player.getName();
+		int playerTodayPlayingTime = 0;
+		if (WLoginSYS.isLogin(player)) {
+			playerTodayPlayingTime = playerTodayPlayingTime + WLoginSYS.getPlayerNowPlayingTime(player);
 		}
-		playerTodayPlayingTime=playerTodayPlayingTime+WLoginSYS.getPlayerTodayPlayingTime(playerNameString);
-		if(isTeenagers(playerNameString)) {
-			if(playerTodayPlayingTime>=60*3) {
+		playerTodayPlayingTime = playerTodayPlayingTime + WLoginSYS.getPlayerTodayPlayingTime(playerNameString);
+		if (isTeenagers(playerNameString)) {
+			if (playerTodayPlayingTime >= 60 * 3) {
 				return false;
-			}else {
-				if(playerTodayPlayingTime>=60*2&&playerTodayPlayingTime<=60*2+5) {
-					player.sendMessage(ChatColor.YELLOW+"您的游戏时间只剩"+(60*3-playerTodayPlayingTime)+"分钟");
+			} else {
+				if (playerTodayPlayingTime >= 60 * 2 && playerTodayPlayingTime <= 60 * 2 + 5) {
+					player.sendMessage(ChatColor.YELLOW + "您的游戏时间只剩" + (60 * 3 - playerTodayPlayingTime) + "分钟");
 				}
-				if(playerTodayPlayingTime>=60*2+30&&playerTodayPlayingTime<=60*2+35) {
-					player.sendMessage(ChatColor.YELLOW+"您的游戏时间只剩"+(60*3-playerTodayPlayingTime)+"分钟");
+				if (playerTodayPlayingTime >= 60 * 2 + 30 && playerTodayPlayingTime <= 60 * 2 + 35) {
+					player.sendMessage(ChatColor.YELLOW + "您的游戏时间只剩" + (60 * 3 - playerTodayPlayingTime) + "分钟");
 				}
-				if(playerTodayPlayingTime>=60*2+50) {
-					player.sendMessage(ChatColor.RED+"您的游戏时间只剩"+(60*3-playerTodayPlayingTime)+"分钟，请注意保护随身携带的物品，以防丢失");
+				if (playerTodayPlayingTime >= 60 * 2 + 50) {
+					player.sendMessage(
+							ChatColor.RED + "您的游戏时间只剩" + (60 * 3 - playerTodayPlayingTime) + "分钟，请注意保护随身携带的物品，以防丢失");
 				}
 				return true;
 			}
-		}else {
+		} else {
 			return true;
 		}
 	}
@@ -510,7 +834,7 @@ public abstract class WLoginSYS {
 		String playerNameString = player.getName();
 		Statement statement;
 		PlayerPlayingTime playerplayingtime = new PlayerPlayingTime();
-		PlayerDailyPlayTime playerdailyplaytime =new PlayerDailyPlayTime();
+		PlayerDailyPlayTime playerdailyplaytime = new PlayerDailyPlayTime();
 		try {
 			statement = WLogin.main.getDatabase().getConnection().createStatement();
 			ResultSet result = statement
@@ -541,15 +865,14 @@ public abstract class WLoginSYS {
 		}
 		try {
 			statement = WLogin.main.getDatabase().getConnection().createStatement();
-			ResultSet result = statement.executeQuery(
-					"SELECT * FROM playerdailyplaytime WHERE playername = '" + playerNameString + "' and date = curdate();");
+			ResultSet result = statement.executeQuery("SELECT * FROM playerdailyplaytime WHERE playername = '"
+					+ playerNameString + "' and date = curdate();");
 			while (result.next()) {
 				playerdailyplaytime.setPlayerNameString(result.getString(1));
 				playerdailyplaytime.setDate(result.getDate(2));
 				playerdailyplaytime.setMin(result.getInt(3));
 			}
-			int playingtime = getTimeDifferenceMinutes(getNowTimestamp(),
-					playerLoginList.get(playerNameString));//这次玩了了多久
+			int playingtime = getTimeDifferenceMinutes(getNowTimestamp(), playerLoginList.get(playerNameString));// 这次玩了了多久
 			if (playerdailyplaytime.getPlayerNameString() == null
 					|| playerdailyplaytime.getPlayerNameString().length() == 0) {
 				statement.executeUpdate("INSERT INTO playerdailyplaytime(playername,date,min)VALUES('"
@@ -558,8 +881,8 @@ public abstract class WLoginSYS {
 				statement.close();
 			} else {
 				playingtime = playingtime + playerdailyplaytime.getMin();
-				statement.executeUpdate("UPDATE playerdailyplaytime SET min = " + playingtime
-						+ " WHERE playername = '" + playerNameString + "' and date = curdate()");
+				statement.executeUpdate("UPDATE playerdailyplaytime SET min = " + playingtime + " WHERE playername = '"
+						+ playerNameString + "' and date = curdate()");
 				result.close();
 				statement.close();
 			}
@@ -570,21 +893,21 @@ public abstract class WLoginSYS {
 		}
 		if (done) {
 			playerLoginList.remove(playerNameString);
-			if(player.isOp()) {
+			if (player.isOp()) {
 				opLoginList.remove(playerNameString);
 			}
 		}
 		return;
 	}
 
-	public static boolean changePassword(Player targePlayer,String oldPasswordString, String newPasswordString) {// 修改密码
+	public static boolean changePassword(Player targePlayer, String oldPasswordString, String newPasswordString) {// 修改密码
 		// TODO Auto-generated method stub
 		if (!checkPassword(targePlayer, oldPasswordString)) {
-			targePlayer.sendMessage(ChatColor.RED+"旧密码错误");
+			targePlayer.sendMessage(ChatColor.RED + "旧密码错误");
 			return false;
 		}
-		String targePlayerNameString=targePlayer.getName();
-		String senderNameString=targePlayer.getName();
+		String targePlayerNameString = targePlayer.getName();
+		String senderNameString = targePlayer.getName();
 		PlayerPassword playerPassword = new PlayerPassword();
 		Statement statement;
 		try {
@@ -623,16 +946,16 @@ public abstract class WLoginSYS {
 		Timestamp timestamp = new Timestamp(new Date().getTime());
 		return timestamp;
 	}
-	
+
 	public static void sendMsgToAllOp(String msgString) {
-		for (String opNameString:opLoginList) {
+		for (String opNameString : opLoginList) {
 			WLogin.main.getServer().getPlayer(opNameString).sendMessage(msgString);
 		}
 	}
-	
+
 	public static void warningToOpSbPasswordError(String errorPasswordPlayerName) {
-		sendMsgToAllOp(ChatColor.RED+"玩家 "+ChatColor.YELLOW+errorPasswordPlayerName+ChatColor.RED+" 输错了他的密码");
-		WLogin.main.getServer().getLogger().warning("玩家 "+errorPasswordPlayerName+" 输错了他的密码");
+		sendMsgToAllOp(ChatColor.RED + "玩家 " + ChatColor.YELLOW + errorPasswordPlayerName + ChatColor.RED + " 输错了他的密码");
+		WLogin.main.getServer().getLogger().warning("玩家 " + errorPasswordPlayerName + " 输错了他的密码");
 	}
 
 	public static String getPlayerIPAddress(Player player) {// 获得玩家的IP地址
@@ -646,24 +969,24 @@ public abstract class WLoginSYS {
 		int minutes = (int) (((t1 - t2) / 1000 - hours * (60 * 60)) / 60 + hours * 60);
 		return minutes;
 	}
-	
-	public static boolean checkPasswordForm(Player player,String passwordString) {
-		if(!(passwordString.length()>=6&&passwordString.length()<=18)) {
-			player.sendMessage(ChatColor.RED+"密码长度应大于5或小于19");
+
+	public static boolean checkPasswordForm(Player player, String passwordString) {
+		if (!(passwordString.length() >= 6 && passwordString.length() <= 18)) {
+			player.sendMessage(ChatColor.RED + "密码长度应大于5或小于19");
 			return false;
-		}else {
-			if(!(passwordString.matches("^.*[a-zA-Z]+.*$") && passwordString.matches("^.*[0-9]+.*$"))) {
-				player.sendMessage(ChatColor.RED+"密码应由数字和字母组成");
+		} else {
+			if (!(passwordString.matches("^.*[a-zA-Z]+.*$") && passwordString.matches("^.*[0-9]+.*$"))) {
+				player.sendMessage(ChatColor.RED + "密码应由数字和字母组成");
 				return false;
-			}else {
+			} else {
 				return true;
-			}	
+			}
 		}
-		
+
 	}
-	
+
 	public static void checkLastLoginDataNormal(Player player) {
-		String targePlayerNameString=player.getName();
+		String targePlayerNameString = player.getName();
 		Statement statement;
 		try {
 			statement = WLogin.main.getDatabase().getConnection().createStatement();
@@ -678,36 +1001,36 @@ public abstract class WLoginSYS {
 				statement.close();
 				return;
 			}
-			int firstDataNum=dataLength-2;
+			int firstDataNum = dataLength - 2;
 			PlayerLoginData playerLoginData = new PlayerLoginData();
 			ResultSet resultData = statement
 					.executeQuery("SELECT logintime,loginable,inet_ntoa(ip) FROM playerlogindata WHERE playername = '"
-							+ targePlayerNameString + "'" + "limit "+firstDataNum+",1;");
-			while (resultData.next()) {//获取数据
+							+ targePlayerNameString + "'" + "limit " + firstDataNum + ",1;");
+			while (resultData.next()) {// 获取数据
 				playerLoginData.setLoginTime(resultData.getTimestamp(1));
 				playerLoginData.setLoginable(resultData.getBoolean(2));
 				playerLoginData.setIpString(resultData.getString(3));
 			}
-			Boolean abNormalBoolean=false;
-			if(!playerLoginData.getIpString().equals(getPlayerIPAddress(player))) {
-				//发送数据给玩家
-				player.sendMessage(ChatColor.YELLOW+"-检测到异地登录记录-");
-				abNormalBoolean=true;
+			Boolean abNormalBoolean = false;
+			if (!playerLoginData.getIpString().equals(getPlayerIPAddress(player))) {
+				// 发送数据给玩家
+				player.sendMessage(ChatColor.YELLOW + "-检测到异地登录记录-");
+				abNormalBoolean = true;
 			}
-			if(!playerLoginData.isLoginable()) {
-				player.sendMessage(ChatColor.YELLOW+"-检测到登录失败记录-");
-				abNormalBoolean=true;
+			if (!playerLoginData.isLoginable()) {
+				player.sendMessage(ChatColor.YELLOW + "-检测到登录失败记录-");
+				abNormalBoolean = true;
 			}
-			if(abNormalBoolean) {
-				player.sendMessage(ChatColor.RED+"-异常信息-");
+			if (abNormalBoolean) {
+				player.sendMessage(ChatColor.RED + "-异常信息-");
 				player.sendMessage(ChatColor.YELLOW + "尝试登录的时间 " + ChatColor.GREEN
 						+ playerLoginData.getLoginTime().toString() + ChatColor.YELLOW + " 是否登录成功 " + ChatColor.GREEN
 						+ booleanToString(playerLoginData.isLoginable()));
 				player.sendMessage(ChatColor.YELLOW + "尝试登录的IP地址 " + ChatColor.GREEN + playerLoginData.getIpString());
-			}else {
-				player.sendMessage(ChatColor.GREEN+"-账号状态正常-");
+			} else {
+				player.sendMessage(ChatColor.GREEN + "-账号状态正常-");
 			}
-		
+
 			resultCount.close();
 			resultData.close();
 			statement.close();

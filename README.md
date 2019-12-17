@@ -32,7 +32,11 @@
 - [x] 玩家登录失败警告。  
 - [x] 修改密码的时间，IP地址等。  
 *  `/passwordchangehistory <playername>`查询密码修改记录
-- [ ] 对非法操作过多的玩家进行暂时封禁，可选封禁时长，封禁理由等等。  
+- [x] 对玩家进行封禁，可选封禁时长，封禁理由等等。  
+*  `/wban <playername> <banTimeMin> <reason>`封禁玩家
+*  `/wdean <playername>`取消玩家现有的封禁
+*  `/wbandata <playername> [page]`查询玩家的封禁记录
+*  `/wisban <playername>`玩家是否被封禁  
 
 ### 下载地址  
 

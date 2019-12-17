@@ -20,6 +20,7 @@ public class Teenagers implements CommandExecutor {
 			if (player.isOp()) {
 				if (args.length == 1) {
 					String targePlayerNameString = args[0];
+					Player targePlayer=WLogin.main.getServer().getPlayer(targePlayerNameString);
 					BukkitRunnable bukkitRunnable = new BukkitRunnable() {
 
 						@Override
@@ -28,6 +29,10 @@ public class Teenagers implements CommandExecutor {
 							WLoginSYS.setTeenagers(targePlayerNameString);
 							player.sendMessage(ChatColor.YELLOW + "已将 " + ChatColor.GREEN + targePlayerNameString
 									+ ChatColor.YELLOW + " 纳入防沉迷系统");
+							if(!WLoginSYS.teenageersChecker(targePlayer)) {
+								targePlayer.kickPlayer(WLogin.kickTeenagersMsg());
+								return;
+							}
 						}
 					};
 					bukkitRunnable.runTaskAsynchronously(WLogin.main);

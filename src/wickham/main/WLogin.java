@@ -12,6 +12,10 @@ import wickham.command.admin.IsTeenagers;
 import wickham.command.admin.PasswordChangeHistory;
 import wickham.command.admin.Teenagers;
 import wickham.command.admin.UnLogin;
+import wickham.command.admin.WBan;
+import wickham.command.admin.WBanData;
+import wickham.command.admin.WDeBan;
+import wickham.command.admin.WIsBan;
 import wickham.command.normal.LoginData;
 import wickham.command.normal.LoginFailData;
 import wickham.command.normal.PlayingTime;
@@ -64,6 +68,10 @@ public class WLogin extends JavaPlugin {
 		main.getCommand("teenagers").setExecutor(new Teenagers());
 		main.getCommand("isteenagers").setExecutor(new IsTeenagers());
 		main.getCommand("deteenagers").setExecutor(new DeTeenagers());
+		main.getCommand("wban").setExecutor(new WBan());
+		main.getCommand("wdeban").setExecutor(new WDeBan());
+		main.getCommand("wbandata").setExecutor(new WBanData());
+		main.getCommand("wisban").setExecutor(new WIsBan());
 	}
 	
 	private void PreparingListener() {// 载入监听器
@@ -96,7 +104,7 @@ public class WLogin extends JavaPlugin {
 	}
 	
 	public static String playerEntityOnlyMsg() {
-		return ChatColor.RED+"只有玩家实体才可执行此命令";
+		return "只有玩家实体才可执行此命令";
 	}
 	
 	public static String serverCommandErrorMsg() {

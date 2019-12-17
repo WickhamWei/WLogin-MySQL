@@ -102,7 +102,7 @@ public abstract class AllTables {
 				}
 				try {
 					statement = WLogin.main.getDatabase().getConnection().createStatement();
-					String sql = "CREATE TABLE IF NOT EXISTS `banplayerdata`(" + "`playername` VARCHAR(40) NOT NULL,"
+					String sql = "CREATE TABLE IF NOT EXISTS `banplayerdata`(" + "`playername` VARCHAR(40) NOT NULL,"+"`senderplayername` VARCHAR(40) NOT NULL,"
 							+ "`reason` VARCHAR(300) NOT NULL," + "`time` TIMESTAMP NOT NULL," + "`time_long` INT,"
 							+ "FOREIGN KEY (playername) REFERENCES playerpassword(playername)"
 							+ ")ENGINE=InnoDB DEFAULT CHARSET=utf8;";
