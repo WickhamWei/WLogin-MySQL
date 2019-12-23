@@ -735,7 +735,7 @@ public abstract class WLoginSYS {
 			}
 			senderPlayer.sendMessage(ChatColor.YELLOW + "---玩家 " + ChatColor.GREEN + targePlayerNameString
 					+ ChatColor.YELLOW + " 封禁数据 - 第 " + ChatColor.GREEN + page + ChatColor.YELLOW + " 页 - 总共 "
-					+ ChatColor.GREEN + (int) Math.ceil((float) dataLength / 5) + ChatColor.YELLOW + " 页---");
+					+ ChatColor.GREEN + (int) Math.ceil((float) dataLength / 2) + ChatColor.YELLOW + " 页---");
 			int tempNumber = 1;
 			for (BanPlayerData data : allDatas) {// 发送数据给玩家
 				senderPlayer.sendMessage(

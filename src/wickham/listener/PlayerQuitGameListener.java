@@ -15,21 +15,22 @@ public class PlayerQuitGameListener implements Listener {
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
+		event.setQuitMessage("");
 		if (WLoginSYS.isLogin(player.getName())) {
 			WLoginSYS.unLogin(player);
-			event.setQuitMessage("");
 			WLogin.main.getServer().broadcastMessage(ChatColor.YELLOW+player.getName()+" 退出了游戏");
 			WLogin.main.getLogger().info(event.getPlayer().getName()+" 退出了游戏");
 			return;
 		}
+		
 	}
 	
 	@EventHandler
 	public void onPlayerQuit(PlayerKickEvent event) {
 		Player player = event.getPlayer();
+		event.setLeaveMessage("");
 		if (WLoginSYS.isLogin(player.getName())) {
 			WLoginSYS.unLogin(player);
-			event.setLeaveMessage("");
 			WLogin.main.getServer().broadcastMessage(ChatColor.YELLOW+player.getName()+" 退出了游戏");
 			WLogin.main.getLogger().info(event.getPlayer().getName()+" 退出了游戏");
 			return;

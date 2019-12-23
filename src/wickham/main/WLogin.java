@@ -84,6 +84,7 @@ public class WLogin extends JavaPlugin {
 	
 	private void loadConfig() {
 		this.saveDefaultConfig();
+		config.addDefault("启动MySQL", true);
 		enableMySQL=config.getBoolean("启动MySQL");
 	}
 
@@ -123,7 +124,6 @@ public class WLogin extends JavaPlugin {
 	}
 	
 	public void saveConfiguration() {
-		saveConfig();
 	}
 	
 	private void loadMySQL() {

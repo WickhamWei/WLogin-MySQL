@@ -13,7 +13,7 @@
 *  `/loginfaildata [page]`查询登录失败记录
 - [x] 每次游戏游玩的时间，总的游戏时间等。  
 *  `/playingtime`查询游戏时间记录
-- [x] 在不同IP进行登录将收到提醒。  
+- [x] 在不同IP进行登录或者上次登录失败将收到提醒。  
 - [x] 防沉迷系统。（管理员命令）  
 *  `/teenagers <playername>`将玩家设置成防沉迷对象
 *  `/deteenagers <playername>`将玩家取消防沉迷对象
@@ -29,9 +29,9 @@
 *  `/loginfaildata <playername> [page]`查询登录失败记录
 - [x] 查询玩家总的游戏时长。
 *  `/playingtime <playername>`查询游戏时间记录
-- [x] 玩家登录失败警告。  
+- [x] 玩家登录失败，服务器后台和所有管理员将收到警报。  
 - [x] 修改密码的时间，IP地址等。  
-*  `/passwordchangehistory <playername>`查询密码修改记录
+*  `/passwordchangehistory <playername> [page]`查询密码修改记录
 - [x] 对玩家进行封禁，可选封禁时长，封禁理由等等。  
 *  `/wban <playername> <banTimeMin> <reason>`封禁玩家
 *  `/wdean <playername>`取消玩家现有的封禁
